@@ -1,0 +1,161 @@
+{% extends 'layout_content.html' %}
+{% load static %}
+{% load rbac %}
+{% block  css_content %}
+    <style>
+        tr.active {
+            border-left: 3px solid #fdc00f;
+        }
+
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="row wrapper wrapper-content">
+
+        <form method="post" action="?type=generate">
+            {% csrf_token %}
+            {{ generate_formset.management_form }}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <i class="fa fa-book" aria-hidden="true"></i>
+                    新的url
+                    {% if request|has_permission:"rbac_menu_add" %}
+                        <button type="submit" class="btn btn-primary btn-sm left pull-right"
+                                style="padding: 2px 8px; margin: -3px">
+                            <i class="fa fa-save"></i>
+                            &nbsp; 保存
+                        </button>
+
+                    {% endif %}
+                </div>
+                <table class="table table-hover text-center" data-toggle="table">
+                    <thead>
+                    <tr>
+                        <th class="text-center">序号</th>
+                        <th class="text-center">标题</th>
+                        <th class="text-center">url</th>
+                        <th class="text-center">别名</th>
+                        <th class="text-center">所属菜单</th>
+                        <th class="text-center">父权限</th>
+                        <th class="text-center">排序</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for form in generate_formset %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            {% for field in form %}
+                                <td>{{ field }} <span style="color: red">{{ field.errors.0 }}</span></td>
+                            {% endfor %}
+                        </tr>
+
+                    {% endfor %}
+
+
+                    </tbody>
+                </table>
+            </div>
+        </form>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="fa fa-book" aria-hidden="true"></i>
+                数据库中存在，项目中不存在的URL
+            </div>
+            <table class="table table-hover text-center" data-toggle="table">
+                <thead>
+                <tr>
+                    <th class="text-center">序号</th>
+                    <th class="text-center">标题</th>
+                    <th class="text-center">url</th>
+                    <th class="text-center">别名</th>
+                    <th class="text-center">所属菜单</th>
+                    <th class="text-center">父权限</th>
+                    <th class="text-center">排序</th>
+                    <th class="text-center">删除</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for field in delete_row_list %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ field.title }} <span style="color: red">{{ field.errors.0 }}</span></td>
+                        <td>{{ field.url }} <span style="color: red">{{ field.errors.0 }}</span></td>
+                        <td>{{ field.name }} <span style="color: red">{{ field.errors.0 }}</span></td>
+                        <td>{{ field.menu_id }} <span style="color: red">{{ field.errors.0 }}</span></td>
+                        <td>{{ field.pid }} <span style="color: red">{{ field.errors.0 }}</span></td>
+                        <td>{{ field.sort }} <span style="color: red">{{ field.errors.0 }}</span></td>
+                        <td>
+                            {% if request|has_permission:"rbac_permission_del" %}
+                                <a href="{% memory_url request 'rbac:rbac_permission_del' pk=field.id %}"> <i
+                                        class="fa fa-trash-o" style="color:#EC4859"></i></a>
+                            {% endif %}
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+
+                </tbody>
+            </table>
+        </div>
+        <form method="post" action="?type=update">
+            {% csrf_token %}
+            {{ update_formset.management_form }}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <i class="fa fa-book" aria-hidden="true"></i>
+                    数据库中已存在的URL
+                    {% if request|has_permission:"rbac_menu_add" %}
+                        <button type="submit" class="btn btn-primary btn-sm left pull-right"
+                                style="padding: 2px 8px; margin: -3px">
+                            <i class="fa fa-save"></i>
+                            &nbsp; 保存
+                        </button>
+                    {% endif %}
+                </div>
+                <table class="table table-hover text-center" data-toggle="table">
+                    <thead>
+                    <tr>
+                        <th class="text-center">序号</th>
+                        <th class="text-center">标题</th>
+                        <th class="text-center">url</th>
+                        <th class="text-center">别名</th>
+                        <th class="text-center">所属菜单</th>
+                        <th class="text-center">父权限</th>
+                        <th class="text-center">排序</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for form in update_formset %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            {% for field in form %}
+                                {% if forloop.first %}
+                                    {{ field }}
+                                {% else %}
+                                    <td>{{ field }} <span style="color: red">{{ field.errors.0 }}</span></td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+
+                    {% endfor %}
+
+
+                    </tbody>
+                </table>
+            </div>
+        </form>
+
+
+    </div>
+
+{% endblock %}
+
+{% block js_content %}
+    <script>
+
+    </script>
+
+{% endblock %}

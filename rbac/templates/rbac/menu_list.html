@@ -1,0 +1,205 @@
+{% extends 'layout_content.html' %}
+{% load static %}
+{% load rbac %}
+{% block  css_content %}
+    <style>
+        tr.active {
+            border-left: 3px solid #fdc00f;
+        }
+
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="row wrapper wrapper-content">
+        {% csrf_token %}
+        <div class="col-sm-3">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <i class="fa fa-book" aria-hidden="true"></i>
+                    一级菜单
+                    {% if request|has_permission:"rbac_menu_add" %}
+                        <a class="btn btn-primary btn-sm left pull-right"
+                           style="padding: 2px 8px; margin: -3px"
+                           href="{% memory_url request 'rbac:rbac_menu_add' %}">
+                            <i class="fa fa-plus-circle"></i>
+                            &nbsp;新建
+                        </a>
+                    {% endif %}
+                </div>
+                <table class="table table-hover text-center" data-toggle="table">
+                    <thead>
+                    <tr>
+                        <th class="text-center">名称</th>
+                        <th class="text-center">图标</th>
+                        <th class="text-center">选项</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    {% for row in menus %}
+                        <tr class="{% if row.id|safe == menu_id %}active{% endif %}">
+                            <td>
+                                <a href="?mid={{ row.id }}"><strong>{{ row.title }}</strong></a>
+
+                            </td>
+                            <td>
+                                <i class="fa {{ row.icon }}"></i>
+
+                            </td>
+                            <td>
+                                {% if request|has_permission:"rbac_menu_edit" %}
+                                    <a href="{% memory_url request 'rbac:rbac_menu_edit' pk=row.id %}">
+                                        <i class="fa fa-edit" style="color: #18A689"></i>
+                                    </a>|
+                                {% endif %}
+                                {% if request|has_permission:"rbac_menu_del" %}
+                                    <a href="{% memory_url request 'rbac:rbac_menu_del' pk=row.id %}"> <i
+                                            class="fa fa-remove" style="color:#EC4859"></i></a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+        <div class="col-sm-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <i class="fa fa-gavel" aria-hidden="true"></i>
+                    二级菜单
+                    {% if request|has_permission:"rbac_second_menu_add" and  menu_id %}
+                        <a class="btn btn-primary btn-sm left pull-right"
+                           style="padding: 2px 8px; margin: -3px"
+                           href="{% memory_url request 'rbac:rbac_second_menu_add' menu_id %}">
+                            <i class="fa fa-plus-circle"></i>
+                            &nbsp;新建
+                        </a>
+                    {% endif %}
+                </div>
+                <table class="table table-hover" data-toggle="table">
+                    <thead>
+                    <tr>
+                        <th class="text-center">名称</th>
+                        <th class="text-center">CODE&URL</th>
+                        {% if request|has_permission:"rbac_second_menu_edit" or request|has_permission:"rbac_second_menu_del" %}
+                            <th class="text-center">选项</th>
+                        {% endif %}
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    {% for row in second_menus %}
+                        <tr class="{% if row.id|safe == second_mid %}active{% endif %}">
+                            <td rowspan="2" class="text-center">
+                                <a href="?second_mid={{ row.id }}&mid={{ menu_id }}"><strong>{{ row.title }}</strong></a>
+
+                            </td>
+                            <td>{{ row.name }}</td>
+
+                            <td class="text-center">
+                                {% if request|has_permission:"rbac_second_menu_edit" %}
+                                    <a href="{% memory_url request 'rbac:rbac_second_menu_edit' pk=row.id %}">
+                                        <i class="fa fa-edit" style="color: #18A689"></i>
+                                    </a>|
+                                {% endif %}
+                                {% if request|has_permission:"rbac_second_menu_del" %}
+                                    <a href="{% memory_url request 'rbac:rbac_second_menu_del' pk=row.id %}"> <i
+                                            class="fa fa-remove" style="color:#EC4859"></i></a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr class="{% if row.id|safe == second_mid %}active{% endif %}">
+                            <td colspan="2" style="border-top:0">
+                                {{ row.url }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <div class="col-sm-5">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <i class="fa fa-gavel" aria-hidden="true"></i>
+                    权限
+                    {% if request|has_permission:"rbac_multi_permissions" and  second_mid %}
+
+                        <a class="btn btn-success btn-sm  pull-right"
+                           style="padding: 2px 8px; margin: -3px ;margin-left: 3px"
+                           href="{% memory_url request 'rbac:rbac_multi_permissions'%}">
+                            <i class="fa fa-plus-circle"></i>
+                            批量操作
+                        </a>
+
+                        <a class="btn btn-primary btn-sm  pull-right"
+                           style="padding: 2px 8px; margin: -3px"
+                           href="{% memory_url request 'rbac:rbac_permission_add' second_mid %}">
+                            <i class="fa fa-plus-circle"></i>
+                            &nbsp;新建
+                        </a>
+                    {% endif %}
+                </div>
+                <table class="table table-hover" data-toggle="table">
+                    <thead>
+                    <tr>
+                        <th class="text-center">名称</th>
+                        <th class="text-center">CODE&URL</th>
+                        {% if request|has_permission:"rbac_permission_edit" or request|has_permission:"rbac_permission_del" %}
+                            <th class="text-center">选项</th>
+                        {% endif %}
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    {% for row in permission %}
+                        <tr class="{% if row.id|safe == second_mid %}active{% endif %}">
+                            <td rowspan="2" class="text-center">
+                                <strong> {{ row.title }}</strong>
+                            </td>
+                            <td>{{ row.name }}</td>
+
+                            <td class="text-center">
+                                {% if request|has_permission:"rbac_permission_edit" %}
+                                    <a href="{% memory_url request 'rbac:rbac_permission_edit' pk=row.id %}">
+                                        <i class="fa fa-edit" style="color: #18A689"></i>
+                                    </a>|
+                                {% endif %}
+                                {% if request|has_permission:"rbac_permission_del" %}
+                                    <a href="{% memory_url request 'rbac:rbac_permission_del' pk=row.id %}"> <i
+                                            class="fa fa-remove" style="color:#EC4859"></i></a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr class="{% if row.id|safe == second_mid %}active{% endif %}">
+                            <td colspan="2" style="border-top:0">
+                                {{ row.url }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+
+{% endblock %}
+
+{% block js_content %}
+    <script>
+
+    </script>
+
+{% endblock %}

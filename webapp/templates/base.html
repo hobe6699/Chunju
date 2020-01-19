@@ -1,0 +1,68 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="{% static 'plugins/jqweui/lib/weui.min.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/jqweui/css/jquery-weui.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/jqweui/css/demos.css' %}">
+    {% block css %}
+    {% endblock %}
+</head>
+<body>
+{% csrf_token %}
+{% block content %}
+{% endblock %}
+
+<script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
+<script src="{% static 'js/jweixin.js' %}"></script>
+<script src="{% static 'plugins/jqweui/lib/fastclick.js' %}"></script>
+<script src="{% static 'plugins/jqweui/js/jquery-weui.min.js' %}"></script>
+<script>
+
+    $(document).ready(function () {
+        $.ajax({
+            type: 'POST',
+            url: "http://" + window.location.hostname + "/webapp/verify/", // class activity设置的链接
+            data: JSON.stringify({
+                'url': encodeURIComponent(location.href.split('#')[0]),
+            }),
+            headers: {'Content-Type': 'application/json', "X-CSRFToken": $('[name="csrfmiddlewaretoken"]').val()},
+
+            success: function (res) {
+                console.log(res);
+                wx.config({
+                    beta: true,
+                    debug: false,
+                    appId: 'ww70cbd82f459f1fa4',
+                    timestamp: res['timestamp'],
+                    nonceStr: res['nonceStr'],
+                    signature: res['signature'],
+                    jsApiList:
+                        ['chooseImage',
+                            'previewImage',
+                            'uploadImage',
+                            'downloadImage',
+                            'openDefaultBrowser',
+                            'checkJsApi',
+                            'scanQRCode']
+                })
+            }
+        });
+        wx.ready(function () {
+            wxStatus = 1;
+
+        });
+        wx.error(function (res) {
+            wxStatus = 2
+        });
+    });
+
+    {% block js %}
+    {% endblock %}
+</script>
+</body>
+</html>

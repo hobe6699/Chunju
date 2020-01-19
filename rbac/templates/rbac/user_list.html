@@ -1,0 +1,62 @@
+{% extends 'layout_content.html' %}
+{% load rbac %}
+{% block content %}
+    <div class="row border-bottom white-bg dashboard-header">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-sm-12">
+                    {% if request|has_permission:"rbac_user_add" %}
+                        <a class="btn btn-primary" href="{% url 'rbac:rbac_user_add' %}"> <i class="fa fa-plus"></i>&nbsp;添加用户</a>
+                    {% endif %}
+                </div>
+            </div>
+            <hr class="hr-line-dashed"/>
+            <div class="row">
+                <div class="col-sm-12">
+                    <table class="table table-hover table-bordered" data-toggle="table">
+                        <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>帐号</th>
+                            <th>邮箱</th>
+                            <th>重置密码</th>
+                            {% if request|has_permission:"rbac_user_edit" or  request|has_permission:"rbac_user_del" %}
+                                <th>操作</th>
+                            {% endif %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in users %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ row.name }}</td>
+                                <td>{{ row.email }}</td>
+                                <td><a href="{% url 'rbac:rbac_user_reset_password' pk=row.id %}">
+                                    重置密码
+                                </a></td>
+
+                                <td>
+                                    {% if request|has_permission:"rbac_user_edit" %}
+                                        <a href="{% url 'rbac:rbac_user_edit' pk=row.id %}">
+                                            <i class="fa fa-edit" style="color: #18A689"></i>
+                                        </a>
+                                    {% endif %}
+                                    {% if request|has_permission:"rbac_user_del" %}|
+
+                                        <a href="{% url 'rbac:rbac_user_del' pk=row.id %}"> <i
+                                                class="fa fa-remove" style="color:#EC4859"></i></a>
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

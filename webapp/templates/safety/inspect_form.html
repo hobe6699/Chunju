@@ -1,0 +1,352 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}提交表单{% endblock %}
+
+{% block content %}
+    <div id="div_content">
+        {% csrf_token %}
+        <div class="weui-flex">
+            <div class="weui-flex__item">
+                <div class="weui-cells__title">
+                    <input class="weui-input" id="area_id" name="{{ area_id }}" value="位置:{{ area_name }}"
+                           readonly="readonly">
+                </div>
+            </div>
+            <div class="weui-flex__item">
+                <div class="weui-cells__title"><input class="weui-input" id="userId" name="{{ userId }}"
+                                                      value="检查人:{{ name }}"
+                                                      readonly="readonly">
+                </div>
+            </div>
+        </div>
+        <div class="weui-cells weui-cells_form">
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <div class="weui-uploader">
+                        <div class="weui-uploader__hd">
+                            <p class="weui-uploader__title">图片上传</p>
+                            <div class="weui-uploader__info">0/2</div>
+                        </div>
+                        <div class="weui-uploader__bd">
+                            <ul class="weui-uploader__files" id="uploaderFiles">
+
+                            </ul>
+                            <div class="weui-uploader__input-box">
+                                <input id="uploaderInput" class="weui-uploader__input" type="file" accept="image/*"
+                                       multiple="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="weui-cell weui-cell_switch">
+            <div class="weui-cell__bd">是否故障:</div>
+            <div class="weui-cell__ft">
+                <input class="weui-switch" type="checkbox" value="off">
+            </div>
+        </div>
+
+        <div class="weui-cells__title">事件说明:</div>
+        <div class="weui-cells weui-cells_form">
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <textarea class="weui-textarea" placeholder="请输入文本" rows="3"></textarea>
+                    <div class="weui-textarea-counter"><span>0</span>/50</div>
+                </div>
+            </div>
+        </div>
+        <a id="btn_submit" type="submit" class="weui-btn weui-btn_primary weui-btn_disabled">提交</a>
+    </div>
+
+    <!--查看图片-->
+    <div class="weui-gallery" style="display: none" onclick="cancelShowImg()">
+        <span class="weui-gallery__img"></span>
+        <div class="weui-gallery__opr">
+            <a href="javascript:removeImg()" class="weui-gallery__del">
+                <i class="weui-icon-delete weui-icon_gallery-delete"></i>
+            </a>
+        </div>
+    </div>
+
+{% endblock %}
+<script>
+    {% block js %}
+
+        $(function () {
+            //监测开关的变化
+            $('.weui-switch').on('change', function () {
+                let that = $(this);
+                let state = that.attr("checked");
+                if (state === undefined) {
+                    that.attr("checked", true);
+                    that.val('on');
+                    return
+                }
+                that.attr("checked", false);
+                that.val('off');
+
+            });
+
+            //监测[事件说明]文本变化
+            $('.weui-textarea').on('input propertychange', function () {
+                let textNumber = $(this).val().length;
+                //console.log(textNumber);
+                if (textNumber > 50) {
+                    $.toptip("[事件说明]超过字符限制", 'warning');
+                    $(this).val($(this).val().substr(0, 50));
+                    return;
+                }
+                $(this).next('div').children('span').text(textNumber);
+            });
+
+            // 允许上传的图片类型
+            var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+            // 1024KB，也就是 1MB
+            //var maxSize = 1024 * 1024;
+            // 图片最大宽度
+            var maxWidth = 10000;
+            // 最大上传图片数量
+            var maxCount = 6;
+            // 选择图片 并上传
+            $('#uploaderInput').on('change', function (event) {
+                var files = event.target.files;
+
+                // 如果没有选中文件，直接返回
+                if (files.length === 0) {
+                    return;
+                }
+
+                for (var i = 0, len = files.length; i < len; i++) {
+                    var file = files[i];
+                    var reader = new FileReader();
+                    let fileDate = new Date(file.lastModified).toLocaleDateString(); //文件时间
+                    let currentDate = new Date().getFullYear() + '/' + new Date().getMonth() + 1 + '/' + new Date().getDate();  //当前时间
+                    let intervalDate = Date.parse(fileDate) - Date.parse(currentDate);  //间隔时间
+                    if (intervalDate < 0) {
+                        $.toptip('请上传今天的图片!', 'warning');
+                        return;
+                    }
+
+                    // 如果类型不在允许的类型范围内
+                    if (allowTypes.indexOf(file.type) === -1) {
+
+                        $.toast("该类型不允许上传！", "forbidden");
+                        continue;
+                    }
+
+                    //if (file.size > maxSize) {
+                    //$.weui.alert({text: '图片太大，不允许上传'});
+                    //   $.alert("图片太大，不允许上传", "警告！");
+                    //     continue;
+                    //  }
+
+                    if ($('.weui-uploader__file').length >= maxCount) {
+                        $.toast('最多只能上传' + maxCount + '张图片');
+                        return;
+                    }
+
+                    reader.readAsDataURL(file);
+                    reader.onload = function (e) {
+                        var img = new Image();
+                        img.src = e.target.result;
+
+                        img.onload = function () {
+                            // 不要超出最大宽度
+                            var w = Math.min(maxWidth, img.width);
+                            // 高度按比例计算
+                            var h = img.height * (w / img.width);
+
+                            var canvas = document.createElement('canvas'); //绘制图形
+                            var ctx = canvas.getContext('2d');
+                            // 设置 canvas 的宽度和高度
+                            //处理一下原图片缩小一些
+                            function fn(wnum, hnum) {
+
+                                if (wnum > 4000) {
+                                    wnum = wnum * 0.2;
+                                    hnum = hnum * 0.2;
+                                }
+                                if (wnum > 2000) {
+                                    wnum = wnum * 0.4;
+                                    hnum = hnum * 0.4;
+
+                                }
+
+                                if (wnum > 2000) {
+                                    wnum = wnum * 0.8;
+                                    hnum = hnum * 0.8;
+
+                                }
+                                return [wnum, hnum];
+                            }
+
+                            let wh = fn(w, h);  //重新获取高度
+                            canvas.width = wh[0];
+                            canvas.height = wh[1];
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                            var base64 = canvas.toDataURL('image/jpeg', 0.8);
+                            //console.log(base64);
+                            // 插入到预览区
+                            var $preview = $('<li onclick="showImg(this)" class="weui-uploader__file weui-uploader__file_status" style="background-image:url(' + img.src + ')"><div class="weui-uploader__file-content">正在上传</div></li>');
+                            $('#uploaderFiles').append($preview);
+                            var num = $('.weui-uploader__file').length;
+                            $('.weui-uploader__info').text(num + '/' + maxCount);
+
+
+                            var formData = new FormData();
+
+
+                            formData.append("images", base64);
+                            formData.append('fileName', guid() + ".jpg");
+                            var csrfmiddlewaretoken = $('input[name="csrfmiddlewaretoken"]').val();
+                            formData.append('csrfmiddlewaretoken', csrfmiddlewaretoken);
+
+
+                            //console.log(formData);
+                            $.ajax({
+                                url: "/webapp/upload_img/",
+                                type: 'POST',
+                                data: formData,
+                                contentType: false,
+                                processData: false,
+                                success: function (data) {
+                                    if (data !== '0') {
+                                        $preview.removeClass('weui-uploader__file_status');
+                                        $preview.attr("name", data);
+                                        //图片上传成功后 允许提交
+                                        $('#btn_submit').attr('class', 'weui-btn weui-btn_primary');
+                                        $('#btn_submit').attr('href', "javascript:submit_content()")
+                                    }
+
+                                },
+                                error: function (xhr, type) {
+                                    $.toast('Ajax error!', "cancel")
+                                }
+                            });
+
+                        };
+
+                    };
+
+                }
+            });
+        });
+
+        //预览图片
+        function showImg(that) {
+            //1、显示预览div
+            $('.weui-gallery').attr('style', 'display:block');
+            //获取当前图片的url
+            let _bk = $(that).css('backgroundImage');
+            let _src = _bk.replace('url(', '').replace(')', '');
+            //在预览窗体中显示图片
+            $('.weui-gallery').children('.weui-gallery__img').css('background-image', 'url(' + _src + ')');
+
+            //将图片名称 给删除按钮，以便后面删除
+            $('.weui-gallery__del').attr("name", $(that).attr('name'));
+
+        }
+
+        //删除图片
+        function removeImg() {
+            //1、获取图片名称
+            let imgName = $('.weui-gallery__del').attr('name');
+            //2、找到对应的图片 元素
+            let img = $('#uploaderFiles').find('li[name="' + imgName + '"]');
+
+            $.confirm({
+                title: '删除图片',
+                text: "您确定要删除这张图片吗?",
+                onOK: function () {
+                    // 获取图片的数量
+                    let imgs = $(img).parent().children().length - 1;
+                    $('.weui-uploader__info').text(imgs + "/6");
+                    //删除图片
+                    $(img).remove();
+                    //预览图片div 隐藏
+                    cancelShowImg();
+                    // 当没有片的时候，提交按钮不可用
+                    if (imgs <= 0) {
+                        $('#btn_submit').attr('class', 'weui-btn weui-btn_primary weui-btn_disabled');
+                        $('#btn_submit').attr('href', "javascript:;");
+                    }
+
+                    // 从服务器删除图片
+                    $.post('/webapp/upload_img_del/', {"image_name": imgName}, function (values) {
+                        console.log(values);
+                    })
+
+
+                },
+                onCancel: function () {
+                    return false;
+                }
+            });
+        }
+
+        function cancelShowImg() {
+            $('.weui-gallery').attr('style', 'display:none');
+        }
+
+
+
+        //生成guid
+        function guid() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+
+        //提交内容
+        function submit_content() {
+            let area_id = $("#area_id").attr("name"); //区域
+            let userId = $("#userId").attr("name"); // 人员
+            let img = $(".weui-uploader__files").children();//图片
+            let imgNames = []; //图片名称列表
+            $.each(img, function (k, v) {
+                imgNames[k] = $(v).attr('name');
+            });
+            let isWarning = $('.weui-switch').val();  //是否故障
+            let warningContent = $('.weui-textarea').val(); //事故内容
+
+            if (area_id.length <= 0 || userId.length <= 0) {
+                $.toptip('连接服务器错误，请退出重试!', 'warning');
+                return false;
+            }
+            if (imgNames.length <= 0) {
+                $.toptip('无图无真相!', 'warning');
+                return false;
+            }
+
+            let data = {
+                "area_id": area_id,
+                "userId": userId,
+                "imgNames": imgNames,
+                "isWarning": isWarning,
+                "warningContent": warningContent
+            };
+            data = JSON.stringify(data);
+
+            $.post("/webapp/inspect_form/", {"data": data}, function (values) {
+                if (values !== '0') {
+                    $.toast('操作成功');
+                    //返回前一个页面
+                    setTimeout(function () {
+                        window.history.back(); //返回前一页
+                        window.location.replace(document.referrer)  //刷新返回后的页面
+                    }, 1000);
+                } else {
+                    return false;
+                }
+
+
+            });
+
+        }
+
+    {% endblock %}
+</script>

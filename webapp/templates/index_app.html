@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block content %}
+    <div class="weui-flex">
+        <div class="weui-flex__item  mui-text-center"></div>
+        <div class="weui-flex__item  mui-text-center">首页</div>
+        <div class="weui-flex__item  mui-text-center"></div>
+    </div>
+
+    <div class="weui-grids">
+        <a href="/webapp/inspect/" class="weui-grid js_grid">
+            <div class="weui-grid__icon">
+                <img  src="{% static 'img/相机.png' %}" alt="">
+            </div>
+            <p class="weui-grid__label">
+                安全检查
+            </p>
+        </a>
+        <a href="" class="weui-grid js_grid">
+            <div class="weui-grid__icon">
+                <img src="images/icon_nav_cell.png" alt="">
+            </div>
+            <p class="weui-grid__label">
+                List
+            </p>
+        </a>
+        ...
+    </div>
+{% endblock %}
+
+<script>
+    {% block js %}
+
+    {% endblock %}
+</script>

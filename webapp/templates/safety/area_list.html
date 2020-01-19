@@ -1,0 +1,159 @@
+{% extends 'layout_content.html' %}
+{% load static %}
+{% load rbac %}
+{% block  css_content %}
+    <style>
+        tr.active {
+            border-left: 3px solid #fdc00f;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="row wrapper wrapper-content">
+        {% csrf_token %}
+
+        <div class="col-sm-2">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <i class="fa fa-book" aria-hidden="true"></i>
+                    区域分类
+                    {% if request|has_permission:"area_class_add" %}
+                        <a class="btn btn-primary btn-sm left pull-right"
+                           style="padding: 2px 8px; margin: -3px"
+                           href="{% memory_url request 'webapp:area_class_add' %}">
+                            <i class="fa fa-plus-circle"></i>
+                            &nbsp;新建
+                        </a>
+                    {% endif %}
+                </div>
+                <table class="table text-center table-hover">
+                    <thead>
+                    <tr>
+                        <th class="text-center">名称</th>
+                        {% if request|has_permission:"area_class_edit" or request|has_permission:"area_class_del" %}
+                            <th class="text-center">选项</th>
+                        {% endif %}
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    {% for row in area_class %}
+                        <tr class="{% if row.id|safe == acid %}active{% endif %}">
+                            <td>
+                                <a href="?acid={{ row.id }}" name="link"><strong>{{ row.name }}</strong></a>
+                            </td>
+                            <td>
+                                {% if request|has_permission:"area_class_edit" %}
+                                    <a href="{% memory_url request 'webapp:area_class_edit' pk=row.id %}">
+                                        <i class="fa fa-edit" style="color: #18A689"></i>
+                                    </a>|
+                                {% endif %}
+                                {% if request|has_permission:"area_class_del" %}
+                                    <a href="{% memory_url request 'webapp:area_class_del' pk=row.id %}"> <i
+                                            class="fa fa-remove" style="color:#EC4859"></i></a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+        <div class="col-sm-5">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <i class="fa fa-book" aria-hidden="true"></i>
+                    区域
+                    {% if request|has_permission:"area_add" and acid %}
+                        <a class="btn btn-primary btn-sm left pull-right"
+                           style="padding: 2px 8px; margin: -3px"
+                           href="{% memory_url request 'webapp:area_add' acid %}">
+                            <i class="fa fa-plus-circle"></i>
+                            &nbsp;新建
+                        </a>
+                    {% endif %}
+                </div>
+                <table class="table text-center table-hover">
+                    <thead>
+                    <tr>
+                        <th class="text-center">区域名称</th>
+                        <th class="text-center">唯一码</th>
+                        {% if request|has_permission:"area_class_edit" or request|has_permission:"area_class_del" %}
+                            <th class="text-center">选项</th>
+                        {% endif %}
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    {% for row in area %}
+                        <tr class="{% if row.id|safe == aid %}active{% endif %}">
+                            <td>
+                                <a href="?acid={{ acid }}&aid={{ row.id }}"><strong>{{ row.name }}</strong></a>
+                            </td>
+                            <td>
+                                {{ row.barcode }}
+                            </td>
+
+                            <td>
+                                {% if request|has_permission:"area_edit" %}
+                                    <a href="{% memory_url request 'webapp:area_edit' pk=row.id %}">
+                                        <i class="fa fa-edit" style="color: #18A689"></i>
+                                    </a>|
+                                {% endif %}
+                                {% if request|has_permission:"area_del" %}
+                                    <a href="{% memory_url request 'webapp:area_del' pk=row.id %}"> <i
+                                            class="fa fa-remove" style="color:#EC4859"></i></a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+
+        <div class="col-sm-5">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <i class="fa fa-book" aria-hidden="true"></i>
+                    人员
+                </div>
+                <table class="table text-center">
+                    <thead>
+                    <tr>
+                        <th class="text-center">姓名</th>
+                        <th class="text-center">部门</th>
+                        <th class="text-center">岗位</th>
+                        <th class="text-center">企业微信号</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in emp %}
+                        <tr>
+                            <td>
+                                <a href="#"><strong>{{ row.emp__name }}</strong></a>
+                            </td>
+                            <td>
+                                {{ row.emp__org_dept__name }}
+                            </td>
+                            <td>
+                                {{ row.emp__org_position__name }}
+                            </td>
+                            <td>
+                                {{ row.emp__wechat }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}

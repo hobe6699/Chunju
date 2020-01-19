@@ -1,0 +1,27 @@
+{% extends 'layout_content.html' %}
+{% load static %}
+{% load rbac %}
+{% block content %}
+    <div class="row wrapper wrapper-content ">
+
+        <div class="col-sm-12 alert alert-danger">
+            <form method="post">
+                {% csrf_token %}
+                <div>
+                    <h3><strong><i class="fa fa-warning"></i> 删除后不可恢复!!!</strong></h3></div>
+                <div class="row m-t-lg">
+                    <div class=" col-sm-12">
+                        <a class="btn btn-default" href="{{ cancel }}">
+                            <i class="fa fa-arrow-circle-left"></i>
+                            &nbsp;返回
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fa fa-check"></i>
+                            &nbsp;确认
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

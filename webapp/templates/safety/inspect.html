@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}{{ name }}{% endblock %}
+{% load static %}
+{% block content %}
+    <div class="weui-flex">
+        <div class="weui-flex__item  mui-text-center"></div>
+        <div class="weui-flex__item  mui-text-center">&nbsp;</div>
+        <div class="weui-flex__item  mui-text-center"></div>
+    </div>
+
+    <div class="weui-flex">
+        <div class="weui-flex__item  mui-text-center">
+
+        </div>
+
+        <div class="weui-flex__item">
+            <a id="btn_scan" href="javascript:scanCode();" class="weui-btn"><img style="width: 100px;height: 100px"
+                                                                                 src="{% static 'img/相机.png' %}"></a>
+        </div>
+        <div class="weui-flex__item  mui-text-center"></div>
+    </div>
+    <div class="weui-cells">
+
+        {% for item in area_list %}
+
+
+            <a class="weui-cell weui-cell_access" id="{{ item.area.id }}" name="{{ item.area.name }}">
+                <div class="weui-cell__hd"><img src="{% static 'img/地点.png' %}"></div>
+                <div class="weui-cell__bd"><p id="{{ item.area.id }}"> {{ item.area.name }}</p></div>
+                {% if item.check_number == 0 %}
+                    <div class="weui-cell__ft" style="color: red">已查次数:{{ item.check_number }}</div>
+                {% else %}
+                    <div class="weui-cell__ft">已查次数:{{ item.check_number }}</div>
+                {% endif %}
+
+            </a>
+        {% endfor %}
+    </div>
+
+{% endblock %}
+
+
+<script>
+
+    {% block js %}
+        $(function () {
+
+            //列表点击事件 跳转连接
+            $('.weui-cell_access').click(function () {
+                window.location.href = "http://" + window.location.hostname + "/webapp/inspect_form/?area_id=" + this.id + "&area_name=" + this.name + "";
+
+            })
+
+        });
+
+        function scanCode(callback) {
+
+            wx.scanQRCode({
+
+                needResult: 1,
+
+                scanType: ["qrCode", "barCode"],
+
+                success: function (res) {
+                    var scanCodeStr = res.resultStr;
+                    window.location.href = "http://" + window.location.hostname + "/webapp/inspect_form/?scanCodeStr=" + scanCodeStr + "";
+                },
+
+                error: function (res) {
+
+                    alert(JSON.stringify(res));
+
+                    if (res.errMsg.indexOf('function_not_exist') > 0) {
+
+                        alert('版本过低请升级')
+
+                    }
+
+                }
+
+            });
+
+        }
+
+
+
+
+    {% endblock %}
+</script>

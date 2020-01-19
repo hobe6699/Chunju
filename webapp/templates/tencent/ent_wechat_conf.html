@@ -1,0 +1,81 @@
+{% extends 'layout_content.html' %}
+{% load static %}
+{% load rbac %}
+{% block css_content %}
+    <link href="{% static 'plugins/hplus/js/plugins/fancybox/jquery.fancybox.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+    <div class="row border-bottom white-bg dashboard-header">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-sm-12">
+
+                    {% if request|has_permission:"webapp_ent_wechat_conf_add" %}
+                        <a class="btn btn-primary" href="/webapp/check_record/"> <i class="fa fa-remove"></i>添加</a>
+                    {% endif %}
+                </div>
+            </div>
+            <hr class="hr-line-dashed"/>
+            <div class="row">
+                <div class="col-sm-12">
+                    <table class="table table-hover table-bordered" data-toggle="table">
+                        <thead>
+                        <tr>
+                            {% for foo in ewc.values %}
+                                {% for f in foo %}
+                                    <th>{{ f }}</th>
+                                {% endfor %}
+                            {% endfor %}
+                            {% if request|has_permission:"webapp_ent_wechat_conf_add" or  request|has_permission:"webapp_ent_wechat_conf_del" %}
+                                <th>操作</th>
+                            {% endif %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for foo in ewc.values %}
+                            <tr>{% for f in foo.values %}
+                                <td>{{ f }}</td>
+                            {% endfor %}
+
+                                <td>
+                                    {% if request|has_permission:"webapp_ent_wechat_conf_add" %}
+                                        <a href="/webapp/ent_wechat_conf/edit/{{ foo.id }}">
+                                            <i class="fa fa-edit"></i>
+                                            </a>
+                                    {% endif %}
+                                    {% if request|has_permission:"webapp_ent_wechat_conf_add" %}|
+
+                                        <a href="/webapp/ent_wechat_conf/del/{{ foo.id }}"> <i class="fa fa-remove"></i></a>
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block js_content %}
+    <script src="{% static 'plugins/hplus/js/plugins/fancybox/jquery.fancybox.js' %}"></script>
+    <script>
+
+        $(document).ready(function () {
+            $('.fancybox').fancybox({
+                openEffect: 'none',
+                closeEffect: 'none'
+            });
+        });
+    </script>
+
+{% endblock %}

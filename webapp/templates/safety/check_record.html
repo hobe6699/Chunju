@@ -1,0 +1,118 @@
+{% extends 'layout_content.html' %}
+{% load static %}
+{% block css_content %}
+    <link href="{% static 'plugins/hplus/js/plugins/fancybox/jquery.fancybox.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-12">
+            <form method="post">
+                {% csrf_token %}
+                <div class="panel panel-default">
+                    <div class="panel-heading"><strong>查询条件</strong></div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">区域:</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control m-b" name="area">
+                                            {% for item in area %}
+                                                <option value=" {{ item.pk }}">{{ item.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">日期:</label>
+                                    <div class="col-sm-10">
+                                        <div class="input-daterange input-group" id="datepicker">
+                                            <input type="text" class="input-sm form-control"
+                                                   data-date-format="yyyy-mm-dd"
+                                                   name="start_date" placeholder="开始日期" autocomplete="off">
+                                            <span class="input-group-addon">到</span>
+                                            <input type="text" class="input-sm form-control"
+                                                   data-date-format="yyyy-mm-dd"
+                                                   name="end_date" placeholder="结束日期" autocomplete="off">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="hr-line-dashed">
+                            <div class="row">
+                                <div class="col-sm-12 float-right">
+                                    <input type="submit" value="提交" class="btn btn-primary"/>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+
+        </div>
+    </div>
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            <div class="col-sm-12">
+                {% for item in check_list %}
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>{{ item.area__name }}
+                                <small>{{ item.create_date }} {{ item.state }} {{ item.description }} {{ item.duty__name }}</small>
+                            </h5>
+                        </div>
+                        <div class="ibox-content">
+                            {% for img in item.img %}
+                                <a class="fancybox" href="/media/{{ img }}"
+                                   title="{% static img %}">
+                                    <img alt="image" style="width: 300px; height: 300px"
+                                         src="/media/{{ img }}">
+                                </a>
+                            {% endfor %}
+
+
+                        </div>
+                    </div>
+                {% endfor %}
+
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block js_content %}
+    <script src="{% static 'plugins/hplus/js/plugins/fancybox/jquery.fancybox.js' %}"></script>
+    <script>
+
+        $(document).ready(function () {
+            $('.fancybox').fancybox({
+                openEffect: 'none',
+                closeEffect: 'none'
+            });
+        });
+
+        function tirgger_parent_menu() {
+            let menu = parent.document.getElementById('side-menu');
+            let lis = $(menu).find('a');
+            $.each(lis, function (k, v) {
+                //console.log($(v).attr("data-index"));
+                if ($(v).attr("data-index") === '4') {
+                    console.log(v);
+                    $(v).children().trigger("click");
+                }
+
+
+            })
+
+        }
+    </script>
+
+{% endblock %}

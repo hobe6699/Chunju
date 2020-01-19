@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--360浏览器优先以webkit内核解析-->
+    <title>HB</title>
+    <link href="{% static 'plugins/hplus/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'plugins/hplus/css/font-awesome.css' %}" rel="stylesheet">
+    <link href="{% static 'plugins/hplus/css/animate.css' %}" rel="stylesheet">
+    <link href="{% static 'plugins/hplus/css/style.css' %}" rel="stylesheet">
+    <!--日期时间-->
+    <link href="{% static 'plugins/hplus/css/plugins/datapicker/datepicker3.css' %}" rel="stylesheet">
+    <!--选择器-->
+    <link href="{% static 'plugins/hplus/css/plugins/chosen/chosen.css' %}" rel="stylesheet">
+    {% block css_content %}
+    {% endblock %}
+
+</head>
+
+<body class="gray-bg">
+{% block content %}
+{% endblock content %}
+<!-- 全局js -->
+<script src="{% static 'plugins/hplus/js/jquery.min.js' %}"></script>
+<script src="{% static 'plugins/hplus/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'plugins/hplus/js/plugins/layer/layer.min.js' %}"></script>
+<!--日期时间-->
+<script src="{% static 'plugins/hplus/js/plugins/datapicker/bootstrap-datepicker.js' %}"></script>
+<script src="{% static 'plugins/hplus/js/plugins/datapicker/bootstrap-datepicker.zh-CN.min.js' %}"></script>
+<!--选择器-->
+<script src="{% static 'plugins/hplus/js/plugins/chosen/chosen.jquery.js' %}"></script>
+
+
+<script>
+    // 日期扩展插件
+    Date.prototype.Format = function (fmt) {
+        var o = {
+            "M+": this.getMonth() + 1, //月份 
+            "d+": this.getDate(), //日 
+            "H+": this.getHours(), //小时 
+            "m+": this.getMinutes(), //分 
+            "s+": this.getSeconds(), //秒 
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+            "S": this.getMilliseconds() //毫秒 
+        };
+        if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    };
+
+
+    $(function () {
+        //初始化选择器
+       // $(".chosen-select").chosen({
+         //   width: "100%", //宽度
+            //search_contains: true//模糊搜索开启
+     //   });
+
+        //初始化日历
+        $('.input-daterange input').each(function () {
+            $(this).datepicker({
+                language: 'zh-CN', //语言
+                autoclose: true, //选择后自动关闭
+                clearBtn: true,//清除按钮
+                format: "yyyy-mm-dd",//日期格式
+                //endDate: new Date(), // 日期截止到今天
+                daysOfWeekHighlighted: "0, 6", // 高亮周六日
+                todayHighlight: true, // 高亮"今日"
+                //todayBtn: "true", // 显示"今日"按钮
+            });
+        });
+        $('.input-group.date input').each(function () {
+            $(this).val(new Date().Format('yyyy-MM-dd'));
+            $(this).datepicker({
+                language: 'zh-CN', //语言
+                autoclose: true, //选择后自动关闭
+                clearBtn: true,//清除按钮
+                format: "yyyy-mm-dd",//日期格式
+                daysOfWeekHighlighted: [0, 6], // 高亮周六日
+            });
+        });
+    })
+</script>
+{% block js_content %}
+{% endblock %}
+</body>
+
+</html>
