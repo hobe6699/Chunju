@@ -17,7 +17,7 @@
                 <div class="panel-heading">
                     <i class="fa fa-book" aria-hidden="true"></i>
                     区域分类
-                    {% if request|has_permission:"area_class_add" %}
+                    {% if request|has_permission:"webapp:area_class_add" %}
                         <a class="btn btn-primary btn-sm left pull-right"
                            style="padding: 2px 8px; margin: -3px"
                            href="{% memory_url request 'webapp:area_class_add' %}">
@@ -30,7 +30,7 @@
                     <thead>
                     <tr>
                         <th class="text-center">名称</th>
-                        {% if request|has_permission:"area_class_edit" or request|has_permission:"area_class_del" %}
+                        {% if request|has_permission:"webapp:area_class_edit" or request|has_permission:"webapp:area_class_del" %}
                             <th class="text-center">选项</th>
                         {% endif %}
                     </tr>
@@ -43,12 +43,12 @@
                                 <a href="?acid={{ row.id }}" name="link"><strong>{{ row.name }}</strong></a>
                             </td>
                             <td>
-                                {% if request|has_permission:"area_class_edit" %}
+                                {% if request|has_permission:"webapp:area_class_edit" %}
                                     <a href="{% memory_url request 'webapp:area_class_edit' pk=row.id %}">
                                         <i class="fa fa-edit" style="color: #18A689"></i>
                                     </a>|
                                 {% endif %}
-                                {% if request|has_permission:"area_class_del" %}
+                                {% if request|has_permission:"webapp:area_class_del" %}
                                     <a href="{% memory_url request 'webapp:area_class_del' pk=row.id %}"> <i
                                             class="fa fa-remove" style="color:#EC4859"></i></a>
                                 {% endif %}
@@ -67,7 +67,7 @@
                 <div class="panel-heading">
                     <i class="fa fa-book" aria-hidden="true"></i>
                     区域
-                    {% if request|has_permission:"area_add" and acid %}
+                    {% if request|has_permission:"webapp:area_add" and acid %}
                         <a class="btn btn-primary btn-sm left pull-right"
                            style="padding: 2px 8px; margin: -3px"
                            href="{% memory_url request 'webapp:area_add' acid %}">
@@ -81,7 +81,7 @@
                     <tr>
                         <th class="text-center">区域名称</th>
                         <th class="text-center">唯一码</th>
-                        {% if request|has_permission:"area_class_edit" or request|has_permission:"area_class_del" %}
+                        {% if request|has_permission:"webapp:area_class_edit" or request|has_permission:"webapp:area_class_del" %}
                             <th class="text-center">选项</th>
                         {% endif %}
                     </tr>
@@ -98,12 +98,12 @@
                             </td>
 
                             <td>
-                                {% if request|has_permission:"area_edit" %}
+                                {% if request|has_permission:"webapp:area_edit" %}
                                     <a href="{% memory_url request 'webapp:area_edit' pk=row.id %}">
                                         <i class="fa fa-edit" style="color: #18A689"></i>
                                     </a>|
                                 {% endif %}
-                                {% if request|has_permission:"area_del" %}
+                                {% if request|has_permission:"webapp:area_del" %}
                                     <a href="{% memory_url request 'webapp:area_del' pk=row.id %}"> <i
                                             class="fa fa-remove" style="color:#EC4859"></i></a>
                                 {% endif %}

@@ -37,10 +37,10 @@ def recursion_urls(per_namespace, per_url, urlpatterns, url_ordered_dict):
         if isinstance(item, URLPattern):  # 非路由分发，就是没有include,是最后一级的路由了，就将路由添加到url_ordered_dict
             if not item.name:  # 如果url 没有别名name ,不管它
                 continue
-            # if per_namespace:  # url中的namespace 有就拼接
-            #     name = "%s_%s" % (per_namespace, item.name)
-            # else:
-            name = item.name
+            if per_namespace:  # url中的namespace 有就拼接
+                name = "%s:%s" % (per_namespace, item.name)
+            else:
+                name = item.name
             url = per_url + str(item.pattern)  # 拼接路由
             url = url.replace('^', '').replace('$', '')  # 去掉正则符号
 

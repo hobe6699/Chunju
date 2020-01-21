@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'webapp.apps.WebappConfig',
     'web.apps.WebConfig',
     'rbac.apps.RbacConfig',
+    'stark.apps.StarkConfig',
 
 ]
 
@@ -152,15 +153,16 @@ MENU_SESSION_KEY = 'chunju_menu_list'
 
 # url白名单 不做权限验证
 VALID_URL_LIST = [
-    'webcore_login',  # 登陆
-    'webcore_logout',  # 注销
-    'webcore_error',  # 错误
-    'webapp_entwxlogin',  # 企业微信登陆
+    ':webcore_login',  # 登陆
+    "webcore:webcore_login",
+    'webcore:webcore_logout',  # 注销
+    'webapp:webcore_error',  # 错误
+    'webapp:webapp_entwxlogin',  # 企业微信登陆
     '/admin/.*',  # 后台管理
     '/media/.*',  # 媒体文件
-    'WW_verify_83z6GYOPGCfBqcDy',  # 企业微信验证文件
-    'webapp_content',  # 企业微信消息
-    'webapp_oauth_user',  # 企业微信 网页登陆认证
+    'webapp:WW_verify_83z6GYOPGCfBqcDy',  # 企业微信验证文件
+    'webapp:webapp_content',  # 企业微信消息
+    'webapp:webapp_oauth_user',  # 企业微信 网页登陆认证
 ]
 
 X_FRAME_OPTIONS = 'ALLOWALL'  # 充许 iform访问

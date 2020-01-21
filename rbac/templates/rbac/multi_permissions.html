@@ -15,12 +15,12 @@
         <form method="post" action="?type=generate">
             {% csrf_token %}
             {{ generate_formset.management_form }}
-            <div class="panel panel-default">
+            <div class="panel panel-primary">
                 <div class="panel-heading">
                     <i class="fa fa-book" aria-hidden="true"></i>
-                    新的url
-                    {% if request|has_permission:"rbac_menu_add" %}
-                        <button type="submit" class="btn btn-primary btn-sm left pull-right"
+                    项目中新增的URL
+                    {% if request|has_permission:"rbac:rbac_menu_add"  and  generate_formset.total_form_count > 0 %}
+                        <button type="submit" class="btn btn-warning btn-sm left pull-right"
                                 style="padding: 2px 8px; margin: -3px">
                             <i class="fa fa-save"></i>
                             &nbsp; 保存
@@ -57,7 +57,7 @@
             </div>
         </form>
 
-        <div class="panel panel-default">
+        <div class="panel panel-info">
             <div class="panel-heading">
                 <i class="fa fa-book" aria-hidden="true"></i>
                 数据库中存在，项目中不存在的URL
@@ -82,11 +82,11 @@
                         <td>{{ field.title }} <span style="color: red">{{ field.errors.0 }}</span></td>
                         <td>{{ field.url }} <span style="color: red">{{ field.errors.0 }}</span></td>
                         <td>{{ field.name }} <span style="color: red">{{ field.errors.0 }}</span></td>
-                        <td>{{ field.menu_id }} <span style="color: red">{{ field.errors.0 }}</span></td>
-                        <td>{{ field.pid }} <span style="color: red">{{ field.errors.0 }}</span></td>
+                        <td>{{ field.menu__title }} <span style="color: red">{{ field.errors.0 }}</span></td>
+                        <td>{{ field.pid__title }} <span style="color: red">{{ field.errors.0 }}</span></td>
                         <td>{{ field.sort }} <span style="color: red">{{ field.errors.0 }}</span></td>
                         <td>
-                            {% if request|has_permission:"rbac_permission_del" %}
+                            {% if request|has_permission:"rbac:rbac_permission_del" %}
                                 <a href="{% memory_url request 'rbac:rbac_permission_del' pk=field.id %}"> <i
                                         class="fa fa-trash-o" style="color:#EC4859"></i></a>
                             {% endif %}
@@ -100,18 +100,19 @@
                 </tbody>
             </table>
         </div>
+
         <form method="post" action="?type=update">
             {% csrf_token %}
             {{ update_formset.management_form }}
-            <div class="panel panel-default">
+            <div class="panel panel-warning">
                 <div class="panel-heading">
                     <i class="fa fa-book" aria-hidden="true"></i>
-                    数据库中已存在的URL
-                    {% if request|has_permission:"rbac_menu_add" %}
+                    数据库中的URL
+                    {% if request|has_permission:"rbac:rbac_menu_edit" %}
                         <button type="submit" class="btn btn-primary btn-sm left pull-right"
                                 style="padding: 2px 8px; margin: -3px">
                             <i class="fa fa-save"></i>
-                            &nbsp; 保存
+                            &nbsp; 更新
                         </button>
                     {% endif %}
                 </div>

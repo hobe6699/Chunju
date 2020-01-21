@@ -57,8 +57,8 @@ def init_permission(current_user, request):
                 'sort': item['permissions__menu__sort'],
                 'children': [node, ]
             }
-    print("menu_dict")
-    print(menu_dict)
+   # print("menu_dict")
+   # print(menu_dict)
     request.session[settings.PERMISSION_SESSION_KEY] = permission_dict
     request.session[settings.MENU_SESSION_KEY] = menu_dict
     emp = OrgEmp.objects.filter(account=current_user).values('pk', 'name', 'org_info',

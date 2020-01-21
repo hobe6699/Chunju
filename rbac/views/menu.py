@@ -145,13 +145,12 @@ def multi_permissions(request):
     post_type = request.GET.get('type')
     generate_formset_class = formset_factory(MultiAddPermissionForm, extra=0, )  # extra 是否可以额外添加
     generate_formset = None
-    if request.method == 'POST' and post_type == 'generate':
-        # 批量添加
+    if request.method == 'POST' and post_type == 'generate':  # 批量添加
         formset = generate_formset_class(data=request.POST)  # 获取提交过来的数据
         if formset.is_valid():  # 进行验证
             object_list = []
             post_row_list = formset.cleaned_data  # 将数据存一份出来
-            has_error = False
+            has_error = False  # 是否出错
             for i in range(0, formset.total_form_count()):  # 循环验证每一行数据，是否在数据库中存在
                 row_dict = post_row_list[i]
                 try:
@@ -166,8 +165,28 @@ def multi_permissions(request):
                 models.Permission.objects.bulk_create(object_list, batch_size=100)  # 批量增加数据，减小数据库开销
         else:
             generate_formset = formset
+
+    update_formset_class = formset_factory(MultiEditPermissionForm, extra=0)  # extra 是否可以额外添加
+    update_formset = None
     if request.method == 'POST' and post_type == 'update':
-        pass  # 批量更新
+        formset = update_formset_class(data=request.POST)  # 获取提交过来的数据
+        if formset.is_valid():  # 进行验证
+            post_row_list = formset.cleaned_data  # 将数据存一份出来
+            for i in range(0, formset.total_form_count()):  # 循环验证每一行数据，是否在数据库中存在
+                row_dict = post_row_list[i]
+                permission_id = row_dict.pop('id')
+                try:
+                    row_object = models.Permission.objects.filter(id=permission_id).first()
+                    for k, v in row_dict.items():
+                        setattr(row_object, k, v)
+                    row_object.validate_unique()  # 验证是否存在
+                    row_object.save()  # 验证通过, 存到列表中
+                except Exception as e:
+                    formset.errors[i].update(e)  # 如有有错误信息，存起来
+                    update_formset = formset
+
+        else:
+            update_formset = formset
 
     all_url_dict = get_all_url_dict()
 
@@ -175,7 +194,10 @@ def multi_permissions(request):
     router_name_set = set(all_url_dict)
 
     # 2、获取数据库中所有的url
-    permissions = models.Permission.objects.all().values('id', 'title', 'name', 'url', 'menu_id', 'pid', 'sort')
+    permissions = models.Permission.objects.all().values('id', 'title', 'name', 'url',
+                                                         'menu_id', 'menu__title',
+                                                         'pid_id', 'pid__title',
+                                                         'sort').order_by('name')
     permission_dict = OrderedDict()  # 有序字典
     permission_name_set = set()  # 集合
     for row in permissions:
@@ -203,7 +225,6 @@ def multi_permissions(request):
             value['url'] = 'url与数据库中的不一致'
 
     update_name_list = permission_name_set & router_name_set  # 数据库和项目中都有 交集
-    update_formset_class = formset_factory(MultiEditPermissionForm, extra=0)  # extra 是否可以额外添加
     update_formset = update_formset_class(
         initial=[row_dict for name, row_dict in permission_dict.items() if name in update_name_list])
 

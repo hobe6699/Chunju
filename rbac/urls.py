@@ -42,5 +42,5 @@ urlpatterns = [
     re_path(r'^permission/del/(?P<pk>\d+)/$', permission.permission_del, name='rbac_permission_del'),
 
     re_path(r'^multi/permissions/$', menu.multi_permissions, name='rbac_multi_permissions'),
-    re_path(r'^multi/ddddd/$', menu.multi_permissions, name='rbac_multi_dddd'),
+
 ]

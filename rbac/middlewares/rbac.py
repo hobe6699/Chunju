@@ -11,6 +11,7 @@ from django.shortcuts import render
 from django.conf import settings
 import re
 from django.urls import resolve
+from rbac.service.origin_url import memory_reverse_url
 
 
 class RbacMiddleware(MiddlewareMixin):
@@ -30,28 +31,28 @@ class RbacMiddleware(MiddlewareMixin):
         3、权限信息的匹配
         """
         current_url = request.path_info  # 获取请求url
-        current_url_name = resolve(request.path).url_name  # 获取请求url的别名
+
+        current_url_name = "%s:%s" % (resolve(request.path).namespace, resolve(request.path).url_name)  # 获取请求url的别名
+
         for valid_url in settings.VALID_URL_LIST:  # 验证白名单  当前请求的url如果在白名单中，直接跳过
             reg = "^{0}$".format(valid_url)  # 别名一致，跳过
             if current_url_name is not None:
-                if re.match(reg, current_url_name):
+                if re.match(valid_url, current_url_name):
                     return None
             if re.match(reg, current_url):  # url一致，跳过
                 return None
 
         permission_dict = request.session.get(settings.PERMISSION_SESSION_KEY)  # 从配置文件中获取权限session的key
         if not permission_dict:
-            # return HttpResponse('未获取到用户权限信息，请登陆')
             return render(request, 'error.html',
                           {"error_code": 401.1, "error_title": "权限错误", "error_content": "未获取到用户权限信息，请重新登陆!",
                            "a_name": "登陆",
                            "a_href": "/webcore/login/"})
-
         flag = False
         for url in permission_dict:
             reg = "^{0}$".format(url)
             if current_url_name is not None:
-                if re.match(reg, current_url_name):  # 别名一致，通协
+                if re.match(url, current_url_name):  # 别名一致，通协
                     flag = True
                     break
             if re.match(reg, current_url):  # url一致，通过

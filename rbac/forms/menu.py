@@ -35,25 +35,25 @@ class SecondMenuModelForm(BootStrapModelForm):
 
 class MultiAddPermissionForm(forms.Form):
     title = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'})
+        widget=forms.TextInput(attrs={'class': 'form-control input-sm'})
     )
     url = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'})
+        widget=forms.TextInput(attrs={'class': 'form-control input-sm'})
     )
     name = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'})
+        widget=forms.TextInput(attrs={'class': 'form-control input-sm'})
     )
     menu_id = forms.ChoiceField(
         choices=[(None, '-----')],
         required=False,
     )
-    pid_id = forms.ChoiceField(
+    pid = forms.ChoiceField(
         choices=[(None, '-----')],
         required=False,
     )
 
     sort = forms.CharField(
-        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+        widget=forms.NumberInput(attrs={'class': 'form-control input-sm'}),
         required=False,
         initial=999,  # 默认值
 
@@ -63,11 +63,11 @@ class MultiAddPermissionForm(forms.Form):
         super(MultiAddPermissionForm, self).__init__(*args, **kwargs)
         # 生成选择列表
         self.fields["menu_id"].choices += models.Menu.objects.values_list('id', 'title')
-        self.fields["menu_id"].widget.attrs['class'] = 'form-control'
+        self.fields["menu_id"].widget.attrs['class'] = 'form-control input-sm'
         # 当pid为空 menu不为空时  表示可以做菜单的选择项
-        self.fields['pid_id'].choices += models.Permission.objects.filter(pid__isnull=True).exclude(
+        self.fields['pid'].choices += models.Permission.objects.filter(pid__isnull=True).exclude(
             menu__isnull=True).values_list('id', 'title')
-        self.fields["pid_id"].widget.attrs['class'] = 'form-control'
+        self.fields["pid"].widget.attrs['class'] = 'form-control input-sm'
 
 
 class MultiEditPermissionForm(forms.Form):
@@ -75,27 +75,29 @@ class MultiEditPermissionForm(forms.Form):
         widget=forms.HiddenInput()
     )
     title = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'})
+        widget=forms.TextInput(attrs={'class': 'form-control input-sm'})
     )
     url = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'})
+        widget=forms.TextInput(attrs={'class': 'form-control input-sm'})
     )
     name = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'})
+        widget=forms.TextInput(attrs={'class': 'form-control input-sm'})
     )
     menu_id = forms.ChoiceField(
         choices=[(None, '-----')],
-
+        widget=forms.Select(attrs={'class': "form-control input-sm"}),
         required=False,
     )
     pid_id = forms.ChoiceField(
         choices=[(None, '-----')],
+        widget=forms.Select(attrs={'class': "form-control input-sm"}),
 
         required=False,
     )
 
     sort = forms.CharField(
-        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+        widget=forms.NumberInput(attrs={'class': 'form-control input-sm'}),
+        initial=999,
         required=False,
     )
 
@@ -103,8 +105,7 @@ class MultiEditPermissionForm(forms.Form):
         super().__init__(*args, **kwargs)
         # 生成选择列表
         self.fields["menu_id"].choices += models.Menu.objects.values_list('id', 'title')
-        self.fields["menu_id"].widget.attrs['class'] = 'form-control'
         # 当pid为空 menu不为空时  表示可以做菜单的选择项
         self.fields['pid_id'].choices += models.Permission.objects.filter(pid__isnull=True).exclude(
             menu__isnull=True).values_list('id', 'title')
-        self.fields["pid_id"].widget.attrs['class'] = 'form-control'
+        self.fields['sort'].widget.attrs['value'] = '999'  # 初始化值

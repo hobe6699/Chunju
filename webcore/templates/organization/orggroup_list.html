@@ -5,7 +5,7 @@
         <div class="col-sm-12">
             <div class="row">
                 <div class="col-sm-12">
-                    {% if request|has_permission:"group_add" %}
+                    {% if request|has_permission:"webcore:group_add" %}
                         <a class="btn btn-primary" href="{% url 'webcore:group_add' %}"> <i class="fa fa-plus"></i>&nbsp;添加组织</a>
                     {% endif %}
                 </div>
@@ -18,7 +18,7 @@
                         <tr>
                             <th>ID</th>
                             <th>名称</th>
-                            {% if request|has_permission:"group_edit" or  request|has_permission:"group_del" %}
+                            {% if request|has_permission:"webcore:group_edit" or  request|has_permission:"webcore:group_del" %}
                                 <th>操作</th>
                             {% endif %}
                         </tr>
@@ -30,12 +30,12 @@
                                     <td>{{ f }}</td>
                                 {% endfor %}
                                 <td>
-                                    {% if request|has_permission:"group_edit" %}
+                                    {% if request|has_permission:"webcore:group_edit" %}
                                         <a href="{% url 'webcore:group_edit' pk=row.id %}">
                                             <i class="fa fa-edit" style="color: #18A689"></i>
                                         </a>
                                     {% endif %}
-                                    {% if request|has_permission:"group_del" %}|
+                                    {% if request|has_permission:"webcore:group_del" %}|
 
                                         <a href="{% url 'webcore:group_del' pk=row.id %}"> <i
                                                 class="fa fa-remove" style="color:#EC4859"></i></a>
