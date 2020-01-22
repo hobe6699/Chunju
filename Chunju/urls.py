@@ -19,8 +19,9 @@ from django.urls import path, include, re_path
 from django.conf.urls.static import static
 from django.conf import settings
 from webcore.views import account
-
+from stark.service.v1 import site
 urlpatterns = [
+    re_path(r'^stark/', site.urls),
     re_path('admin/', admin.site.urls),
     path('', account.login, name='webcore_login'),
     re_path(r"rbac/", include('rbac.urls', namespace='rbac')),  # 权限管理
