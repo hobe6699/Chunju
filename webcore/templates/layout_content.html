@@ -16,6 +16,9 @@
     <link href="{% static 'plugins/hplus/css/plugins/datapicker/datepicker3.css' %}" rel="stylesheet">
     <!--选择器-->
     <link href="{% static 'plugins/hplus/css/plugins/chosen/chosen.css' %}" rel="stylesheet">
+    <!--bootstrap-table表格-->
+    <link href="{% static 'plugins/hplus/css/plugins/bootstrap-table/bootstrap-table.min.css' %}" rel="stylesheet">
+
     {% block css_content %}
     {% endblock %}
 
@@ -33,7 +36,10 @@
 <script src="{% static 'plugins/hplus/js/plugins/datapicker/bootstrap-datepicker.zh-CN.min.js' %}"></script>
 <!--选择器-->
 <script src="{% static 'plugins/hplus/js/plugins/chosen/chosen.jquery.js' %}"></script>
-
+<!--bootstrap-table表格-->
+<script src="{% static 'plugins/hplus/js/plugins/bootstrap-table/bootstrap-table.min.js' %}"></script>
+<script src="{% static 'plugins/hplus/js/plugins/bootstrap-table/bootstrap-table-mobile.min.js' %}"></script>
+<script src="{% static 'plugins/hplus/js/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.min.js' %}"></script>
 
 <script>
     // 日期扩展插件
@@ -56,10 +62,10 @@
 
     $(function () {
         //初始化选择器
-       // $(".chosen-select").chosen({
-         //   width: "100%", //宽度
-            //search_contains: true//模糊搜索开启
-     //   });
+        // $(".chosen-select").chosen({
+        //   width: "100%", //宽度
+        //search_contains: true//模糊搜索开启
+        //   });
 
         //初始化日历
         $('.input-daterange input').each(function () {

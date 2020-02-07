@@ -79,6 +79,11 @@ class OrgEmp(models.Model):
     org_dept = models.ForeignKey(to='OrgDept', on_delete=models.CASCADE, verbose_name="所属部门")
     org_position = models.ForeignKey(to='OrgPosition', on_delete=models.CASCADE, verbose_name="所属岗位")
     name = models.CharField(max_length=512, verbose_name="姓名")
+    gender_choices = (
+        [1, '男'],
+        [2, '女'],
+    )
+    gender = models.IntegerField(verbose_name='性别', choices=gender_choices, default=1)
     account = models.ForeignKey(to='rbac.UserInfo', on_delete=models.CASCADE, verbose_name="账号")
     img = models.ImageField(upload_to='sys', verbose_name="头像", default="person.png", null=True, blank=True)
     create_date = models.DateTimeField(auto_now=True, verbose_name="创建时间")

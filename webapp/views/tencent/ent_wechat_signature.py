@@ -13,13 +13,16 @@ import random, string, time
 from webapp.models.tencent.ent_wechat_conf import *
 from django.views.decorators.csrf import csrf_exempt
 
-try:
-    wechat_app = EntWechatConf.objects.values().first()
-    corp_id = wechat_app['corp_id']  # 企业ID
-    app_id = wechat_app['app_id']  # 应用ID
-    app_secret = wechat_app['app_secret']  # 应用秘钥
-except Exception:
-    print("获取企业微信配置出错")
+# try:
+#     wechat_app = EntWechatConf.objects.values().first()
+#     corp_id = wechat_app['corp_id']  # 企业ID
+#     app_id = wechat_app['app_id']  # 应用ID
+#     app_secret = wechat_app['app_secret']  # 应用秘钥
+# except Exception:
+
+corp_id = settings.CORP_ID
+app_id = settings.APP_ID
+app_secret = settings.APP_SECRET
 
 
 class BaseAuthorization():

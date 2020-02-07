@@ -1,0 +1,206 @@
+{% extends 'layout_content.html' %}
+{% load static %}
+
+
+{% block content %}
+    <div class="row wrapper wrapper-content">
+        <div class="col-sm-12">
+            <div class="ibox">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="ibox-content">
+                        {% if search_group %}
+                            <div class="row">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title" style="color:#4CA48B">
+                                            快速筛选
+                                            <a data-toggle="collapse" href="#collapseThree" class="collapsed pull-right"
+                                               data-parent="#accordion">
+                                                <i class="fa fa-expand"></i>
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapseThree" class="panel-collapse collapse in" aria-expanded="true">
+                                        <div class="panel-body">
+                                            {% for row in search_row_list %}
+                                                <div class="row"
+                                                     style="margin-top: 1px;margin-bottom: 4px;margin-right: 8px">
+                                                <div class="col-sm-12">
+                                                    {% for a in row %}
+                                                            {{ a|safe }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endfor %}
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                        {% endif %}
+
+                    <div class="row" style="margin-bottom:5px">
+                        {% if action_dict %}
+
+                            <div class="pull-left col-sm-4">
+
+                                {% csrf_token %}
+                                <div class="input-group">
+                                    <select class="form-control" name="action">
+                                        <option value="">请选择操作</option>
+
+                                        {% for k,v in action_dict.items %}
+                                            <option value="{{ k }}">{{ v }}</option>
+
+                                        {% endfor %}
+
+                                    </select>
+                                    <span class="input-group-btn">
+                                   <button class="btn btn-primary"><i class="fa fa-cogs"
+                                                                      id="btn_action"></i> &nbsp;执行</button>
+                                </span>
+                                </div>
+
+                            </div>
+                        {% endif %}
+
+                        <div class="col-sm-1">
+                            {% if add_btn %}
+                                {{ add_btn|safe }}
+                            {% endif %}
+                        </div>
+                        {% if has_search %}
+                            <div class="pull-right col-sm-4">
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <div class="input-group">
+                                        <input type="text" class="form-control " name="search_context"
+                                               autocomplete="off"
+                                               {% if search_context %}value="{{ search_context }}" {% endif %}>
+                                        <span class="input-group-btn">
+                                        <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+                                        </span>
+                                    </div>
+                                </form>
+                            </div>
+                        {% endif %}
+
+
+                    </div>
+                    <div class="row">
+                        <table class="table table-hover table-bordered" id="table_list">
+                            <thead>
+                            <tr>
+                                {% for item in header_list %}
+                                    <th class="text-center">{{ item|safe }}</th>
+                                {% endfor %}
+                            </tr>
+                            </thead>
+
+                            {% for row in body_list %}
+                                <tr>
+                                    {% for td  in row %}
+                                        <td class="text-center">{{ td }}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+
+                    <div class="row" style="margin-top: 8px">
+                        <div class="fixed-table-pagination" style="margin-top:-10px">
+                            <div class="pull-left pagination-detail">
+                                <span class="pagination-info">显示第 {{ start }} 到第 {{ end }} 条记录，总共 {{ pager.all_count }} 条记录</span>
+                                <span class="page-list">每页显示
+                                    <span class="btn-group dropup">
+                                        <button type="button" class="btn btn-default btn-xs btn-outline dropdown-toggle"
+                                                data-toggle="dropdown">
+                                        <span class="page-size">{{ pager.per_page }}</span>
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu">
+                                         {{ pager.page_size|safe }}
+                                     </ul>
+                                </span> 条记录</span>
+                            </div>
+                            <div class="pull-right pagination-detail">
+                                <ul class="pagination pagination-outline" style="margin-top:-4px">
+                                    {{ pager.page_html|safe }}
+                                </ul>
+                            </div>
+                        </div>
+
+
+                        <div class="clearfix"></div>
+                    </div>
+
+
+            </div>
+            </form>
+        </div>
+
+    </div>
+    </div>
+
+{% endblock %}
+{% block js_content %}
+    <script>
+        $(function () {
+            /***
+             $("input[type='checkbox']").on('click', function () {
+                let that = $(this);
+
+                let checked_state = that.attr('checked');
+                let tbr = $("#table_list").children('tbody').children('tr');
+
+                console.log(checked_state);
+
+                if (that.attr('id') === 'checkbox_all') {
+                    console.log(that.attr('id'));
+                    if (checked_state === undefined) {
+                        //$("table input[type='checkbox']").attr('checked', 'checked');
+                        //table.each(function (k, v) {
+                        //   let input_checkbox =  $(v).find("input[type='checkbox']");
+                        //    input_checkbox.attr('checked', 'checked');
+                        //  input_checkbox.toggleClass('active')
+                        //  });
+
+                        //  that.attr('checked', 'checked');
+                        tbr.each(function (k, v) {
+                            $(v).find("input[type='checkbox']").prop('checked', 'checked');
+                        })
+
+
+                    } else {
+                        tbr.each(function (k, v) {
+                            $(v).find("input[type='checkbox']").removeAttr('checked');
+                        });
+
+                        that.removeAttr('checked');
+
+                    }
+
+                } else {
+
+                    if (checked_state === undefined) {
+                        that.attr('checked', 'checked');
+                    } else {
+                        that.removeAttr('checked');
+
+                    }
+
+                }
+
+
+            });
+
+             **/
+
+
+        });
+
+
+    </script>
+{% endblock %}
