@@ -35,13 +35,18 @@ class SearchGroupRow(object):
         对获取到的数据创建一个可迭代方法 并使用生成器生成想要的数据，生成器是一种特殊的迭代器
         :return:
         """
-        # yield "<a href='#' class='btn btn-primary btn-outline'>%s</a>" % self.title
-        yield "<h5 class='pull-left' style='color:#4CA48B; margin-right: 8px'>%s:</h5>" % self.title
-        yield "<a href='#' class='btn btn-primary btn-outline btn-xs'>%s</a>" % '全部'  # 对应返回不同的标签
+        yield "<tr>"
+        yield "<td style='width:60px' class='text-center'>"
+        yield "<h5  style='color:#4CA48B;'>%s:</h5>" % self.title
+        yield "</td>"
+        yield "<td style='margin: 1px;'>"
+        yield "<a href='#'  style='margin: 1px;' class='btn btn-primary btn-outline btn-xs'>%s</a>" % '全部'  # 对应返回不同的标签
 
         for item in self.queryset_or_tuple:  # 先获取每一个对象
             text = self.search_option.get_text(item)  # 获取要显示的文本
-            yield "<a href='#' class='btn btn-primary btn-outline btn-xs'>%s</a>" % text  # 对应返回不同的标签
+            yield "<a href='#' style='margin: 1px;' class='btn btn-primary btn-outline btn-xs'>%s</a>" % text  # 对应返回不同的标签
+        yield "</td>"
+        yield "</tr>"
 
 
 class SearchOption(object):
@@ -102,6 +107,78 @@ class SearchOption(object):
         return str(field_object)  # 不是元组，返回对象str
 
 
+class TableHeaderUrl(object):
+    def __init__(self, request, start_handler, verbose_name):
+        """
+        生成表的列表题，主要是处理标题上的a标签，给不同的标签赋于不同的功能
+        比如 第一列的全选功能
+        其它列的排序功能
+        :param request: 请求信息
+        :param start_handler: StartHandler类
+        :param verbose_name: 表的列标题
+        """
+        self.request = request
+        self.verbose_name = verbose_name
+        self.name = "%s:%s" % (start_handler.site.namespace, start_handler.get_list_url_name)  # 获取list的url
+
+    @property
+    def get_header_url(self):
+        verbose_name = self.verbose_name
+        base_url = reverse(self.name)
+
+        if self.request.GET:
+            params = self.request.GET.copy()  # 获取GET的参数
+            params._mutable = True  # 将参数允许编辑
+            if params:
+                if 'checkbox_selected_all' in verbose_name:
+                    if 'checkbox_all' in params:
+                        if 'true' in params['checkbox_all']:
+                            params['checkbox_all'] = 'false'
+                            flag = False
+                        else:
+                            params['checkbox_all'] = 'true'
+                            flag = True
+                    else:
+                        params['checkbox_all'] = 'false'
+                        flag = False
+                    url = self.get_checkbox_all(params=params.urlencode(), flag=flag)
+                    return url
+                else:
+                    if 'verbose_name' in params:
+                        if '-' != params['verbose_name'][0:1]:
+                            params['verbose_name'] = "-%s" % verbose_name  # 0.2.3 给verbose_name添加一个负号，用来判断是正序还是反序
+                        else:
+                            params['verbose_name'] = verbose_name
+                    else:
+                        params['verbose_name'] = verbose_name
+
+                    url = "<a href=%s?%s>%s</a>" % (base_url, params.urlencode(), verbose_name)  # 0.2.4、拼接url
+
+                return url
+            else:
+                url = "%s?verbose_name=%s" % (base_url, verbose_name)
+                url = '<a href=%s>%s</a>' % (url, verbose_name)
+
+        else:
+            if 'checkbox_selected_all' in verbose_name:  # 有一列作全选用，这里要处理一下
+                # url = "%s?checkbox_all=%s'" % (base_url, verbose_name)
+                url = self.get_checkbox_all()
+            else:
+                url = "%s?verbose_name=%s" % (base_url, verbose_name)
+                url = '<a href=%s>%s</a>' % (url, verbose_name)
+        return url
+
+    def get_checkbox_all(self, params=None, flag=False):
+        if params:
+            if flag:
+                url = "<input type='checkbox'  onclick=\"location='?%s\'\">" % params
+            else:
+                url = "<input type='checkbox' checked onclick=\"location='?%s\'\">" % params
+        else:
+            url = "<input type='checkbox' onclick=\"location='?checkbox_all=%s\'\">" % 'true'
+        return url
+
+
 # 用于给控件添加样式
 class StarkModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -145,6 +222,9 @@ class StartHandler(object):
         """
         pk_list = request.POST.getlist('pk')
         self.model_class.objects.filter(id__in=pk_list).delete()
+        name = "%s:%s" % (self.site.namespace, self.get_list_url_name)  # 获取list的url
+        base_url = reverse(name)
+        return redirect(base_url)
 
     def get_search_group(self):
         """
@@ -212,7 +292,7 @@ class StartHandler(object):
 
     def display_checkbox(self, obj=None, is_header=None):
         if is_header:
-            return '全选'
+            return 'checkbox_selected_all'
         if obj:
             return mark_safe("<input type='checkbox' name='pk' value=%s>" % obj.pk)
 
@@ -239,28 +319,32 @@ class StartHandler(object):
                 else:
                     verbose_name = self.model_class._meta.get_field(key_or_func).verbose_name
                 # 0.2、给表头增加排序功能
+                url = TableHeaderUrl(request, self, verbose_name).get_header_url
+                # name = "%s:%s" % (self.site.namespace, self.get_list_url_name)  # 获取list的url
+                # base_url = reverse(name)
+                # if not self.request.GET:
+                #     if '全选' in verbose_name:  # 有一列作全选中，这里要处理一下
+                #         url = "%s?checkbox_all=%s" % (base_url, verbose_name)
+                #     else:
+                #         url = "%s?verbose_name=%s" % (base_url, verbose_name)
+                # else:  # 当有GET请求时 重新拼接参数
+                #     params = self.request.GET.copy()  # 0.2.1、获取GET的参数
+                #     params._mutable = True  # 0.2.2、将参数允许编辑
+                #     if 'verbose_name' in params:
+                #         if '-' != params['verbose_name'][0:1]:  # 0.2.3 给verbose_name添加一个负号，用来判断是正序还是反序
+                #             params['verbose_name'] = "-%s" % verbose_name
+                #         else:
+                #             params['verbose_name'] = verbose_name
+                #         if '全选' in verbose_name or '全选' in params['verbose_name']:
+                #             params['checkbox_all'] = verbose_name
+                #     else:
+                #         if '全选' in verbose_name:
+                #             params['checkbox_all'] = verbose_name
+                #         else:
+                #             params['verbose_name'] = verbose_name
+                #     url = "%s?%s" % (base_url, params.urlencode())  # 0.2.4、拼接url
 
-                name = "%s:%s" % (self.site.namespace, self.get_list_url_name)  # 获取list的url
-                base_url = reverse(name)
-                if not self.request.GET:
-                    if '全选' in verbose_name:  # 有一列作全选中，这里要处理一下
-                        url = "%s?checkbox_all=%s" % (base_url, verbose_name)
-                    else:
-                        url = "%s?verbose_name=%s" % (base_url, verbose_name)
-                else:  # 当有GET请求时 重新拼接参数
-                    params = self.request.GET.copy()  # 0.2.1、获取GET的参数
-                    params._mutable = True  # 0.2.2、将参数允许编辑
-                    if 'verbose_name' in params:
-                        if '-' != params['verbose_name'][0:1]:  # 0.2.3 给verbose_name添加一个负号，用来判断是正序还是反序
-                            params['verbose_name'] = "-%s" % verbose_name
-                        else:
-                            params['verbose_name'] = verbose_name
-                        if '全选' in verbose_name:
-                            params['checkbox_all'] = verbose_name
-                    else:
-                        params['verbose_name'] = verbose_name
-                    url = "%s?%s" % (base_url, params.urlencode())  # 0.2.4、拼接url
-                header_list.append('<a href=%s>%s</a>' % (url, verbose_name))
+                header_list.append(url)
         else:  # 如果没定义 要显示的列，就显示model的名称
             header_list.append(self.model_class._meta.model_name)
         #  处理表格的表体数据
@@ -268,6 +352,7 @@ class StartHandler(object):
         per_page_count = request.GET.get('per_page_count')  # 每页显示的行数
         verbose_name = request.GET.get('verbose_name')  # 请求排序字段的名称
         # 1.1 排序处理
+        print(verbose_name)
         sort_field = []  # 获取排序的字段
         if verbose_name:
             for field in self.model_class._meta.fields:
@@ -277,7 +362,7 @@ class StartHandler(object):
                 else:
                     if field.verbose_name == verbose_name:
                         sort_field.append(field.name)
-
+        print(sort_field)
         # 1.2 全局搜索处理
 
         from django.db.models import Q  # Q 用于构造复杂的查询条件
@@ -346,16 +431,16 @@ class StartHandler(object):
         # 处理全选事件
         checkbox_all = request.GET.get('checkbox_all')
         if checkbox_all:
-            if '全选' in checkbox_all:
-                name = "%s:%s" % (self.site.namespace, self.get_list_url_name)  # 获取list的url
-                base_url = reverse(name)
-                params = self.request.GET.copy()  # 0.2.1、获取GET的参数
-                params._mutable = True  # 0.2.2、将参数允许编辑
-                params['checkbox_all'] = '取消'
-                url = "%s?%s" % (base_url, params.urlencode())  # 0.2.4、拼接url
-                a_label = '<a href=%s>%s</a>' % (url, '取消')
-                header_list.pop(0)
-                header_list.insert(0, a_label)
+            if 'true' in checkbox_all:
+                # name = "%s:%s" % (self.site.namespace, self.get_list_url_name)  # 获取list的url
+                # base_url = reverse(name)
+                # params = self.request.GET.copy()  # 0.2.1、获取GET的参数
+                # params._mutable = True  # 0.2.2、将参数允许编辑
+                # params['checkbox_all'] = '取消'
+                # url = "%s?%s" % (base_url, params.urlencode())  # 0.2.4、拼接url
+                # a_label = '<a href=%s>%s</a>' % (url, '取消')
+                # header_list.pop(0)
+                # header_list.insert(0, a_label)
 
                 row_list = []
                 for row in body_list:
@@ -372,16 +457,6 @@ class StartHandler(object):
                     row_list.append(row)
                 body_list.clear()
                 body_list = row_list
-            else:
-                name = "%s:%s" % (self.site.namespace, self.get_list_url_name)  # 获取list的url
-                base_url = reverse(name)
-                params = self.request.GET.copy()  # 0.2.1、获取GET的参数
-                params._mutable = True  # 0.2.2、将参数允许编辑
-                params['checkbox_all'] = '全选'
-                url = "%s?%s" % (base_url, params.urlencode())  # 0.2.4、拼接url
-                a_label = '<a href=%s>%s</a>' % (url, '全选')
-                header_list.pop(0)
-                header_list.insert(0, a_label)
 
         # 快速筛选--组合搜索
         search_group = self.get_search_group()

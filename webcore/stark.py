@@ -27,6 +27,8 @@ class OrgEmpHandler(StartHandler):
     search_group = [
         SearchOption('gender'),
         SearchOption('org_dept', {'id__gt': 0}),
+        SearchOption('org_info', {'id__gt': 0}),
+        SearchOption('account', {'id__gt': 0}),
     ]
 
 
