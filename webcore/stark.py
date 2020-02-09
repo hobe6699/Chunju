@@ -25,7 +25,7 @@ class OrgEmpHandler(StartHandler):
     #     return ['name', 'account',  StartHandler.display_edit,
     #                 StartHandler.display_del]
     search_group = [
-        SearchOption('gender'),
+        SearchOption('gender',is_multi=False),
         SearchOption('org_dept', {'id__gt': 0}),
         SearchOption('org_info', {'id__gt': 0}),
         SearchOption('account', {'id__gt': 0}),
@@ -51,13 +51,15 @@ class OrgDeptHandler(StartHandler):
 
 site.register(OrgDept, OrgDeptHandler)
 
+
 class OrgPositionHandler(StartHandler):
     search_group = [
         SearchOption('parent'),
         SearchOption('org_info'),
     ]
     has_search = True
-    list_display = ['org_info','org_info', 'parent', 'name', 'create_date', StartHandler.display_edit,
+    list_display = ['org_info', 'org_info', 'parent', 'name', 'create_date', StartHandler.display_edit,
                     StartHandler.display_del]
 
-site.register(OrgPosition,OrgPositionHandler)
+
+site.register(OrgPosition, OrgPositionHandler)

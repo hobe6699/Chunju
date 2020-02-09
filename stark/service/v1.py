@@ -19,7 +19,7 @@ from django.db.models import ForeignKey, CharField, IntegerField, ManyToManyFiel
 
 
 class SearchGroupRow(object):
-    def __init__(self, title, queryset_or_tuple, search_option):
+    def __init__(self, title, queryset_or_tuple, search_option, request):
         """
         :param title: 组合搜索前面显示的标题
         :param queryset_or_tuple: 组合搜索关联到的数据
@@ -28,6 +28,7 @@ class SearchGroupRow(object):
         self.title = title
         self.queryset_or_tuple = queryset_or_tuple
         self.search_option = search_option
+        self.request = request
 
     def __iter__(self):
         """
@@ -40,22 +41,56 @@ class SearchGroupRow(object):
         yield "<h5  style='color:#4CA48B;'>%s:</h5>" % self.title
         yield "</td>"
         yield "<td style='margin: 1px;'>"
-        yield "<a href='#'  style='margin: 1px;' class='btn btn-primary btn-outline btn-xs'>%s</a>" % '全部'  # 对应返回不同的标签
-
+        total_query_dict = self.request.GET.copy()
+        total_query_dict._mutable = True
+        origin_value_list = self.request.GET.getlist(self.search_option.field)
+        if not origin_value_list:
+            yield "<a href='?%s'  style='margin: 1px;' class='btn btn-primary btn-outline btn-xs active'>全部</a>" % total_query_dict.urlencode()  # 对应返回不同的标签
+        else:
+            total_query_dict.pop(self.search_option.field)
+            yield "<a href='?%s'  style='margin: 1px;' class='btn btn-primary btn-outline btn-xs'>全部</a>" % total_query_dict.urlencode()  # 对应返回不同的标签
         for item in self.queryset_or_tuple:  # 先获取每一个对象
             text = self.search_option.get_text(item)  # 获取要显示的文本
-            yield "<a href='#' style='margin: 1px;' class='btn btn-primary btn-outline btn-xs'>%s</a>" % text  # 对应返回不同的标签
+            value = self.search_option.get_value(item)  # 获取要显示的文本对应的值
+            query_dict = self.request.GET.copy()  # 获取请求数据，并复制一份出来
+            query_dict._mutable = True  # 将数据设为可编辑
+            if not self.search_option.is_multi:
+                query_dict[self.search_option.field] = value  # 请将求数据中对应参数的值 设为要显示的文本对应的值
+                if str(value) in origin_value_list:  # 如果要当值 与请求的值一致，将前端标签 加的active属性。表示选中
+                    query_dict.pop(self.search_option.field)
+                    yield "<a href='?%s' style='margin: 1px;' class='btn btn-primary btn-outline btn-xs active'>%s</a>" % (
+                        query_dict.urlencode(), text)  # 对应返回不同的标签
+                else:
+                    yield "<a href='?%s' style='margin: 1px;' class='btn btn-primary btn-outline btn-xs'>%s</a>" % (
+                        query_dict.urlencode(), text)  # 对应返回不同的标签
+            else:
+                multi_value_list = query_dict.getlist(self.search_option.field)
+                print(multi_value_list)
+                if str(value) in multi_value_list:
+                    multi_value_list.remove(str(value))
+                    query_dict.setlist(self.search_option.field, multi_value_list)
+                    yield "<a href='?%s' style='margin: 1px;' class='btn btn-primary btn-outline btn-xs active'>%s</a>" % (
+                        query_dict.urlencode(), text)  # 对应返回不同的标签
+
+                else:
+                    multi_value_list.append(str(value))
+                    query_dict.setlist(self.search_option.field, multi_value_list)
+                    yield "<a href='?%s' style='margin: 1px;' class='btn btn-primary btn-outline btn-xs'>%s</a>" % (
+                        query_dict.urlencode(), text)  # 对应返回不同的标签
+
         yield "</td>"
         yield "</tr>"
 
 
 class SearchOption(object):
-    def __init__(self, field, db_condition=None, text_func=None):
+    def __init__(self, field, db_condition=None, text_func=None, value_func=None, is_multi=True):
         """
         快速筛选 组合搜索配置
         :param field: 组合搜索关联字段
         :param db_condition: 数据库关联查询时的条件
-        :param text_func: 用于自定义页面上标签显示的内之作
+        :param text_func: 用于自定义页面上标签显示的文本
+        :param value_func: 用于自定义页面上标签的值
+        :param is_multi: 用于定义快速筛选中的条件，是否支持多选
         """
         self.field = field
         if not db_condition:  # 没有传条件时，将条件置为空
@@ -65,6 +100,8 @@ class SearchOption(object):
         self.is_choice = False  # 用于判断是否是choice对象
 
         self.text_func = text_func
+        self.value_func = value_func
+        self.is_multi = is_multi
 
     def get_db_condition(self, request, *args, **kwargs):
         """
@@ -88,11 +125,11 @@ class SearchOption(object):
         if isinstance(field_object, ForeignKey) or isinstance(field_object, ManyToManyField):
             # FK和M2M,应该去获取关联表中的数据
             db_condition = self.get_db_condition(request, *args, **kwargs)
-            return SearchGroupRow(title, field_object.related_model.objects.filter(**db_condition), self)
+            return SearchGroupRow(title, field_object.related_model.objects.filter(**db_condition), self, request)
         else:
             # 获取choice中的数据
             self.is_choice = True
-            return SearchGroupRow(title, field_object.choices, self)
+            return SearchGroupRow(title, field_object.choices, self, request)
 
     def get_text(self, field_object):
         """
@@ -105,6 +142,18 @@ class SearchOption(object):
         if self.is_choice:  # 如果没有自定义的，先判断是不是元组，是返回元组的value
             return field_object[1]
         return str(field_object)  # 不是元组，返回对象str
+
+    def get_value(self, field_object):
+        """
+        获取文本函数
+        :param field_object: 字段对象
+        :return:
+        """
+        if isinstance(self.value_func, FunctionType) and self.value_func:  # 是否有自定义的文显示函数
+            return self.value_func(field_object)  # 有就返回自定义的
+        if self.is_choice:  # 如果没有自定义的，先判断是不是元组，是返回元组的value
+            return field_object[0]
+        return str(field_object.pk)  # 不是元组，返回对象str
 
 
 class TableHeaderUrl(object):
@@ -129,6 +178,19 @@ class TableHeaderUrl(object):
         if self.request.GET:
             params = self.request.GET.copy()  # 获取GET的参数
             params._mutable = True  # 将参数允许编辑
+            # if 'checkbox_selected_all' in verbose_name:
+            #     if 'true' in params['checkbox_all']:
+            #         params['checkbox_all'] = 'false'
+            #         flag = False
+            #     else:
+            #         params['checkbox_all'] = 'true'
+            #         flag = True
+            # else:
+            #     if '-' != params['verbose_name'][0:1]:
+            #         params['verbose_name'] = "-%s" % verbose_name  # 0.2.3 给verbose_name添加一个负号，用来判断是正序还是反序
+            #     else:
+            #         params['verbose_name'] = verbose_name
+
             if params:
                 if 'checkbox_selected_all' in verbose_name:
                     if 'checkbox_all' in params:
@@ -138,12 +200,14 @@ class TableHeaderUrl(object):
                         else:
                             params['checkbox_all'] = 'true'
                             flag = True
+                        url = self.get_checkbox_all(params=params.urlencode(), flag=flag)
                     else:
-                        params['checkbox_all'] = 'false'
-                        flag = False
-                    url = self.get_checkbox_all(params=params.urlencode(), flag=flag)
+                        params['checkbox_all'] = 'true'
+                        flag = True
+                        url = self.get_checkbox_all(params=params.urlencode(), flag=flag)
                     return url
                 else:
+                    print(params)
                     if 'verbose_name' in params:
                         if '-' != params['verbose_name'][0:1]:
                             params['verbose_name'] = "-%s" % verbose_name  # 0.2.3 给verbose_name添加一个负号，用来判断是正序还是反序
@@ -151,24 +215,25 @@ class TableHeaderUrl(object):
                             params['verbose_name'] = verbose_name
                     else:
                         params['verbose_name'] = verbose_name
-
                     url = "<a href=%s?%s>%s</a>" % (base_url, params.urlencode(), verbose_name)  # 0.2.4、拼接url
-
                 return url
             else:
                 url = "%s?verbose_name=%s" % (base_url, verbose_name)
                 url = '<a href=%s>%s</a>' % (url, verbose_name)
+                return url
 
         else:
             if 'checkbox_selected_all' in verbose_name:  # 有一列作全选用，这里要处理一下
                 # url = "%s?checkbox_all=%s'" % (base_url, verbose_name)
                 url = self.get_checkbox_all()
+
             else:
                 url = "%s?verbose_name=%s" % (base_url, verbose_name)
                 url = '<a href=%s>%s</a>' % (url, verbose_name)
-        return url
+            return url
 
     def get_checkbox_all(self, params=None, flag=False):
+        print(flag)
         if params:
             if flag:
                 url = "<input type='checkbox'  onclick=\"location='?%s\'\">" % params
@@ -232,6 +297,28 @@ class StartHandler(object):
         :return:
         """
         return self.search_group
+
+    def get_search_group_condition(self, request):
+        """
+        获取组合搜索的条件
+        :param request:  请求
+        :return:
+        """
+        condition = {}
+        for option in self.get_search_group():  # 获取所有配置了搜索的字段
+            if option.is_multi:  # 是否多选
+                value_list = request.GET.getlist(option.field)  # 看一下 对应的字段，是否在请求中  getlist按列表方式获取请求的数据
+                if not value_list:  # 不在，跳过继续下一次循环
+                    continue
+                else:  # 在拼接成查询条件
+                    condition["%s__in" % option.field] = value_list
+            else:  # 不是多选，单选的
+                value = request.GET.get(option.field)  # 同样获取字段是否在请求中
+                if not value:  # 不在跳过继续下一次循环
+                    continue
+                condition[option.field] = value  # 在拼接成查询条件 直接用字段 = 值
+
+        return condition
 
     def get_action_dict(self):
         return self.action_dict
@@ -320,30 +407,6 @@ class StartHandler(object):
                     verbose_name = self.model_class._meta.get_field(key_or_func).verbose_name
                 # 0.2、给表头增加排序功能
                 url = TableHeaderUrl(request, self, verbose_name).get_header_url
-                # name = "%s:%s" % (self.site.namespace, self.get_list_url_name)  # 获取list的url
-                # base_url = reverse(name)
-                # if not self.request.GET:
-                #     if '全选' in verbose_name:  # 有一列作全选中，这里要处理一下
-                #         url = "%s?checkbox_all=%s" % (base_url, verbose_name)
-                #     else:
-                #         url = "%s?verbose_name=%s" % (base_url, verbose_name)
-                # else:  # 当有GET请求时 重新拼接参数
-                #     params = self.request.GET.copy()  # 0.2.1、获取GET的参数
-                #     params._mutable = True  # 0.2.2、将参数允许编辑
-                #     if 'verbose_name' in params:
-                #         if '-' != params['verbose_name'][0:1]:  # 0.2.3 给verbose_name添加一个负号，用来判断是正序还是反序
-                #             params['verbose_name'] = "-%s" % verbose_name
-                #         else:
-                #             params['verbose_name'] = verbose_name
-                #         if '全选' in verbose_name or '全选' in params['verbose_name']:
-                #             params['checkbox_all'] = verbose_name
-                #     else:
-                #         if '全选' in verbose_name:
-                #             params['checkbox_all'] = verbose_name
-                #         else:
-                #             params['verbose_name'] = verbose_name
-                #     url = "%s?%s" % (base_url, params.urlencode())  # 0.2.4、拼接url
-
                 header_list.append(url)
         else:  # 如果没定义 要显示的列，就显示model的名称
             header_list.append(self.model_class._meta.model_name)
@@ -352,7 +415,7 @@ class StartHandler(object):
         per_page_count = request.GET.get('per_page_count')  # 每页显示的行数
         verbose_name = request.GET.get('verbose_name')  # 请求排序字段的名称
         # 1.1 排序处理
-        print(verbose_name)
+
         sort_field = []  # 获取排序的字段
         if verbose_name:
             for field in self.model_class._meta.fields:
@@ -362,38 +425,38 @@ class StartHandler(object):
                 else:
                     if field.verbose_name == verbose_name:
                         sort_field.append(field.name)
-        print(sort_field)
+
         # 1.2 全局搜索处理
 
         from django.db.models import Q  # Q 用于构造复杂的查询条件
         search_context = request.POST.get('search_context', '')
-        conn = Q()
-        conn.connector = 'OR'
+        conn = Q()  # Q查询
+        conn.connector = 'OR'  # 多个字段用OR连接
         # 拼接查询条件
-        if self.has_search:
-            if search_context:
-                for field in self.model_class._meta.fields:
+        if self.has_search:  # 是否有搜索功能
+            if search_context:  # 是否有搜索请求
+                for field in self.model_class._meta.fields:  # 遍历每一个model中的字段，获取字类型后，拼装搜索条件
                     if isinstance(field, ForeignKey):
                         conn.children.append(("%s__name__contains" % field.name, search_context))
 
                     if isinstance(field, IntegerField):
                         if field.name != 'ID':
                             t = get_choice_list(self.model_class, field.name)
-                            # print(t)
                             if t:
                                 for item in t:
-                                    # print(item[1], search_context)
                                     if search_context in item[1]:
                                         conn.children.append(("%s" % field.name, item[0]))
                     if isinstance(field, CharField):
                         conn.children.append(("%s__contains" % field.name, search_context))
+        # 1.3组合搜索处理
+        search_group_condition = self.get_search_group_condition(request)
 
         # from webcore.models.organization import OrgEmp
         # q = OrgEmp.objects.filter()
 
         # 2、分页处理
 
-        queryset = self.model_class.objects.filter(conn).order_by(*sort_field)  # 获取数据
+        queryset = self.model_class.objects.filter(conn).filter(**search_group_condition).order_by(*sort_field)  # 获取数据
 
         all_count = queryset.count()  # 获取总数
         query_params = request.GET.copy()
@@ -628,27 +691,6 @@ class StartHandler(object):
         :return:  默认生成4个常规的路由
         """
 
-        """
-        
-        if self.prev:
-            patterns = [
-                re_path(r'list/$', self.list_view, name='%s_%s_%s_list' % (app_label, model_name, self.prev)),
-                # name='%s_%s_list' 设置url的别名 self.prev 用于区别相同的model使用不同的名称
-                re_path(r'add/$', self.add_view, name='%s_%s_%s_add' % (app_label, model_name, self.prev)),
-                re_path(r'change/(\d+)/$', self.change_view,
-                        name='%s_%s_%s_change' % (app_label, model_name, self.prev)),
-                re_path(r'delete/(\d+)/$', self.delete_view,
-                        name='%s_%s_%s_delete' % (app_label, model_name, self.prev)),
-            ]
-        else:
-            patterns = [
-                re_path(r'list/$', self.list_view, name='%s_%s_list' % (app_label, model_name,)),
-                # name='%s_%s_list' 设置url的别名
-                re_path(r'add/$', self.add_view, name='%s_%s_add' % (app_label, model_name,)),
-                re_path(r'change/(\d+)/$', self.change_view, name='%s_%s_change' % (app_label, model_name,)),
-                re_path(r'delete/(\d+)/$', self.delete_view, name='%s_%s_delete' % (app_label, model_name,)),
-            ]
-        """
         patterns = [
             re_path(r'^list/$', self.wrapper(self.list_view), name=self.get_list_url_name),
             # name='%s_%s_list' 设置url的别名
