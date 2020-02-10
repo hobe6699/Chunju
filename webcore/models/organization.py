@@ -7,6 +7,7 @@
 # @Software: PyCharm
 # @Emial:5898387@qq.com
 from django.db import models
+from rbac.models import UserInfo as RbacUserInfo
 
 
 # 集团信息
@@ -25,11 +26,11 @@ class OrgInfo(models.Model):
     org_group = models.ForeignKey(to='OrgGroup', on_delete=models.CASCADE, verbose_name="所属组织", null=True, blank=True)
     name = models.CharField(max_length=512, verbose_name="单位名称")
     full_name = models.CharField(max_length=512, verbose_name="单位全称")
-    img = models.ImageField(upload_to='sys', verbose_name="图标")
+    img = models.ImageField(upload_to='sys', verbose_name="图标", null=True, blank=True)
     address = models.CharField(max_length=1024, verbose_name="地址", null=True, blank=True)
     telephone = models.CharField(max_length=32, verbose_name="电话", null=True, blank=True)
     zip = models.CharField(max_length=16, verbose_name="邮编", null=True, blank=True)
-    website = models.CharField(max_length=512, verbose_name="公司网站", null=True, blank=True, default='#')
+    website = models.CharField(max_length=512, verbose_name="公司网站", null=True, blank=True, default='www')
     create_date = models.DateTimeField(auto_now=True, verbose_name="创建时间")
 
     def __str__(self):
@@ -74,23 +75,25 @@ class OrgPosition(models.Model):
         db_table = 'org_position'
 
 
-class OrgEmp(models.Model):
+class OrgEmp(RbacUserInfo):
     org_info = models.ForeignKey(to='OrgInfo', on_delete=models.CASCADE, verbose_name="所属单位")
     org_dept = models.ForeignKey(to='OrgDept', on_delete=models.CASCADE, verbose_name="所属部门")
     org_position = models.ForeignKey(to='OrgPosition', on_delete=models.CASCADE, verbose_name="所属岗位")
-    name = models.CharField(max_length=512, verbose_name="姓名")
+    username = models.CharField(max_length=512, verbose_name="姓名")
     gender_choices = (
         [1, '男'],
         [2, '女'],
     )
     gender = models.IntegerField(verbose_name='性别', choices=gender_choices, default=1)
-    account = models.ForeignKey(to='rbac.UserInfo', on_delete=models.CASCADE, verbose_name="账号")
-    img = models.ImageField(upload_to='sys', verbose_name="头像", default="person.png", null=True, blank=True)
-    create_date = models.DateTimeField(auto_now=True, verbose_name="创建时间")
+    # account = models.ForeignKey(to='rbac.UserInfo', on_delete=models.CASCADE, verbose_name="账号")
+    img = models.ImageField(upload_to='sys', verbose_name="头像", default="/media/person.png/", null=True, blank=True)
     wechat = models.CharField(max_length=128, verbose_name="微信号", null=True, blank=True)
+    hire_date = models.DateTimeField(verbose_name="入职时间", null=True, blank=True)
+
+    create_date = models.DateTimeField(auto_now=True, verbose_name="创建时间")
 
     def __str__(self):
-        return self.name
+        return self.username
 
     class Meta:
         db_table = 'org_emp'

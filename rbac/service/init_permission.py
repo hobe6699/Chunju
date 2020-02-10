@@ -30,6 +30,7 @@ def init_permission(current_user, request):
                                                                                        'permissions__menu__title',
                                                                                        'permissions__menu__icon',
                                                                                        'permissions__menu__sort').distinct().order_by('permissions__menu__sort','permissions__sort')
+
     # 获取权限 和 菜单信息
     menu_dict = {}  # 菜单列表
     permission_dict = {}  # 权限列表
@@ -61,14 +62,13 @@ def init_permission(current_user, request):
    # print(menu_dict)
     request.session[settings.PERMISSION_SESSION_KEY] = permission_dict
     request.session[settings.MENU_SESSION_KEY] = menu_dict
-    emp = OrgEmp.objects.filter(account=current_user).values('pk', 'name', 'org_info',
-                                                             'org_info__name',
-                                                             'org_info__img', 'org_info__full_name',
-                                                             'org_info__website',
-                                                             'org_dept', 'org_dept__name',
-                                                             'org_position',
-                                                             'org_position__name', 'account',
-                                                             'account__name', 'account__email', 'img',
-                                                             'wechat').first()  # 获取人员信息
+    # emp = OrgEmp.objects.filter(account=current_user).values('pk', 'name', 'org_info',
+    #                                                          'org_info__name',
+    #                                                          'org_info__img', 'org_info__full_name',
+    #                                                          'org_info__website',
+    #                                                          'org_dept', 'org_dept__name',
+    #                                                          'org_position',
+    #                                                          'org_position__name', 'account',
+    #                                                          'account__name', 'account__email', 'img',
+    #                                                          'wechat').first()  # 获取人员信息
 
-    request.session["emp"] = emp

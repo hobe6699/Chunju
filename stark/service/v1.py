@@ -16,6 +16,7 @@ from django import forms
 import functools
 from stark.utils.get_custom_choice import get_choice_index, get_choice_list
 from django.db.models import ForeignKey, CharField, IntegerField, ManyToManyField
+from django.forms.fields import ImageField, DateTimeField, CharField, IntegerField, ChoiceField  # 用于判断前端控件类型
 
 
 class SearchGroupRow(object):
@@ -65,7 +66,6 @@ class SearchGroupRow(object):
                         query_dict.urlencode(), text)  # 对应返回不同的标签
             else:
                 multi_value_list = query_dict.getlist(self.search_option.field)
-                print(multi_value_list)
                 if str(value) in multi_value_list:
                     multi_value_list.remove(str(value))
                     query_dict.setlist(self.search_option.field, multi_value_list)
@@ -244,13 +244,28 @@ class TableHeaderUrl(object):
         return url
 
 
+class DateTimePickerInput(forms.TextInput):
+    template_name = 'stark/forms/widget/datetime_picker.html'
+
+
 # 用于给控件添加样式
 class StarkModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(StarkModelForm, self).__init__(*args, **kwargs)
         for name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
-            field.widget.attrs['autocomplete'] = 'off'
+            if isinstance(field, CharField) or isinstance(field, ChoiceField):
+                field.widget.attrs['class'] = 'form-control input-sm'
+                field.widget.attrs['autocomplete'] = 'off'
+
+
+# 用于给控件添加样式
+class StarkForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(StarkForm, self).__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            if not isinstance(field, ImageField):
+                field.widget.attrs['class'] = 'form-control input-sm'
+                field.widget.attrs['autocomplete'] = 'off'
 
 
 class StartHandler(object):
@@ -325,7 +340,7 @@ class StartHandler(object):
 
     def get_add_btn(self):
         if self.has_add_btn:
-            return "<a href='%s' class='btn btn-primary btn-xm'><i class='fa fa-plus'></i> 新增</a>" % self.revers_url(
+            return "<a href='%s' class='btn btn-primary btn-sm'><i class='fa fa-plus'></i> 新增</a>" % self.revers_url(
                 self.get_add_url_name)
         return None
 
@@ -335,10 +350,15 @@ class StartHandler(object):
         :return:
         """
         value = []
-        value.extend(self.list_display)
+        if self.list_display:  # 当定义了显示名称时
+            value.extend(self.list_display)  # 按显示名称显示，
+            value.append(StartHandler.display_edit)  # 并默认加上编辑和删除方法
+            value.append(StartHandler.display_del)
+
         return value
 
-    def get_model_form_class(self):
+    def get_model_form_class(self, is_add, request, pk=None, *args, **kwargs):
+
         if self.model_form_class:  # 如果用户自定义一form页面，就使用用户自定义的
             return self.model_form_class
 
@@ -545,49 +565,52 @@ class StartHandler(object):
                       }
                       )
 
-    def save(self, form, is_update=False):
+    def save(self, request, form, is_update, *args, **kwargs):
         """
         将保存动作分离出来后，方便用户自定制保存时的动作，比如给某个字段设置默认值
         :param form: 表单
         :param is_update:
         :return:
         """
-        if not is_update:
-            form.save()
+        form.save()
 
     def add_view(self, request, *args, **kwargs):
-        model_form_class = self.get_model_form_class()
-        url = self.revers_list_url()
+        model_form_class = self.get_model_form_class(True, request=request, *args, **kwargs)
+        url = self.reverse_list_url(*args, **kwargs)
         if request.method == "GET":
             form = model_form_class()
             return render(request, 'stark/change.html', {"form": form, 'cancel': url})
 
         form = model_form_class(data=request.POST)
         if form.is_valid():
-            self.save(form)
+            self.save(request, form, False, *args, **kwargs)
             # 保存成功后，返回列表页面
             return redirect(url)
         return render(request, 'stark/change.html', {"form": form, 'cancel': url})
 
+    def get_change_object(self, request, pk, *args, **kwargs):
+        return self.model_class.objects.filter(pk=pk).first()
+
     def change_view(self, request, pk, *args, **kwargs):
-        obj = self.model_class.objects.filter(id=pk).first()  # 数据是否存在
-        if not obj:
-            return HttpResponse('数据不存在!')  # 如果不存在，返回错误信息
-        model_form_class = self.get_model_form_class()
-        url = self.revers_list_url()
+        current_change_object = self.get_change_object(request, pk, *args, **kwargs)  # 数据是否存在
+        if not current_change_object:
+            return HttpResponse('要修改的数据不存在!，请重新选择')  # 如果不存在，返回错误信息
+        model_form_class = self.get_model_form_class(False, request, pk, *args, **kwargs)
+        url = self.reverse_list_url()
         if request.method == "GET":
-            form = model_form_class(instance=obj)
+            form = model_form_class(instance=current_change_object)
             return render(request, 'stark/change.html', {"form": form, 'cancel': url})
 
-        form = model_form_class(instance=obj, data=request.POST)
+        form = model_form_class(instance=current_change_object, data=request.POST)
+
         if form.is_valid():
-            self.save(form, True)
+            response = self.save(request, form, True, *args, **kwargs)
             # 保存成功后，返回列表页面
-            return redirect(url)
+            return response or redirect(self.reverse_list_url(*args, **kwargs))
         return render(request, 'stark/change.html', {"form": form, 'cancel': url})
 
     def delete_view(self, request, pk, *args, **kwargs):
-        url = self.revers_list_url()
+        url = self.reverse_list_url()
         if request.method == "GET":
             return render(request, 'stark/delete.html/', {'pk': pk, "cancel": url})
         self.model_class.objects.filter(id=pk).delete()
@@ -635,14 +658,15 @@ class StartHandler(object):
         """
         return self.get_url_name('delete')
 
-    def revers_url(self, url_type, pk=None):
+    def revers_url(self, name, pk=None, *args, **kwargs):
         """
         反向生成  url 主要目的保留原url的参数
-        :param url_type:  要生成url类型  新增 修改 删除
+        :param name:  要生成url类型  新增 修改 删除
         :param pk:  如果是 修改 或删除，需要把ID传过来
         :return: 反回一个新的url
         """
-        name = "%s:%s" % (self.site.namespace, url_type)
+
+        name = "%s:%s" % (self.site.namespace, name)
         if pk:
             base_url = reverse(name, args=(pk,))
         else:
@@ -658,7 +682,7 @@ class StartHandler(object):
 
         return url
 
-    def revers_list_url(self, ):
+    def reverse_list_url(self, *args, **kwargs):
         """
         按带有_filter参数值返回原地址
         :return:
@@ -695,8 +719,8 @@ class StartHandler(object):
             re_path(r'^list/$', self.wrapper(self.list_view), name=self.get_list_url_name),
             # name='%s_%s_list' 设置url的别名
             re_path(r'^add/$', self.wrapper(self.add_view), name=self.get_add_url_name),
-            re_path(r'^change/(\d+)/$', self.wrapper(self.change_view), name=self.get_change_url_name),
-            re_path(r'^delete/(\d+)/$', self.wrapper(self.delete_view), name=self.get_delete_url_name),
+            re_path(r'^change/(?P<pk>\d+)/$', self.wrapper(self.change_view), name=self.get_change_url_name),
+            re_path(r'^delete/(?P<pk>\d+)/$', self.wrapper(self.delete_view), name=self.get_delete_url_name),
         ]
         patterns.extend(self.extra_urls())  # 添加额外的路由
         return patterns

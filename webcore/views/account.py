@@ -5,10 +5,11 @@
 # @Site    : www.ivan.net.cn
 # @File    : login.py
 # @Software: PyCharm
-from django.shortcuts import render, HttpResponse, redirect
+from django.shortcuts import render, redirect
 from rbac.service.init_permission import init_permission
-from rbac.models import UserInfo
+
 from webcore.models import organization
+from webcore.utils import md5
 
 
 def login(request):
@@ -17,19 +18,29 @@ def login(request):
         org = organization.OrgInfo.objects.all().first()  # 获取公司配置信息
         return render(request, 'login.html', {"org": org})
     username = request.POST.get('username')
-    password = request.POST.get('password')
-    current_user = UserInfo.objects.filter(name=username, password=password).first()
-    # print(current_user)
+    password = md5.get_md5(request.POST.get('password'))
+
+    current_user = organization.OrgEmp.objects.filter(name=username, password=password).first()
+
     if not current_user:
         return render(request, 'login.html', {'msg': '用户名密码错误.'})
     init_permission(current_user, request)  # 调用权限初始化
-    emp = organization.OrgEmp.objects.filter(account=current_user).values('pk', 'name', 'org_info', 'org_info__name',
-                                                                          'org_info__img', 'org_info__full_name',
-                                                                          'org_info__website',
-                                                                          'org_dept', 'org_dept__name', 'org_position',
-                                                                          'org_position__name', 'account',
-                                                                          'account__name', 'account__email', 'img',
-                                                                          'wechat').first()  # 获取人员信息
+    emp = {'pk': current_user.pk,
+           'username': current_user.username,
+           'name': current_user.name,
+           'email': current_user.email,
+           'img': str(current_user.img),
+           'wechat': current_user.wechat,
+           'org_info__name': str(current_user.org_info),
+           'org_info__img': str(current_user.org_info.img),
+           'org_info__full_name': str(current_user.org_info.full_name),
+           'org_info__website': str(current_user.org_info.website),
+           'org_dept': str(current_user.org_dept),
+           'org_dept__name': str(current_user.org_dept),
+           'org_position': str(current_user.org_position.pk),
+           'org_position__name': str(current_user.org_position)
+           }
+
     if not emp:
         return render(request, 'login.html', {'msg': '此用户未分配对应的人员信息'})
     request.session['emp'] = emp  # 在session中存人员信息，方便后面调用

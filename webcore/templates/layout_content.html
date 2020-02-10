@@ -66,8 +66,8 @@
         //   width: "100%", //宽度
         //search_contains: true//模糊搜索开启
         //   });
-
         //初始化日历
+
         $('.input-daterange input').each(function () {
             $(this).datepicker({
                 language: 'zh-CN', //语言
@@ -81,13 +81,15 @@
             });
         });
         $('.input-group.date input').each(function () {
-            $(this).val(new Date().Format('yyyy-MM-dd'));
+            //$(this).val(new Date().Format('yyyy-MM-dd'));
             $(this).datepicker({
                 language: 'zh-CN', //语言
                 autoclose: true, //选择后自动关闭
                 clearBtn: true,//清除按钮
                 format: "yyyy-mm-dd",//日期格式
                 daysOfWeekHighlighted: [0, 6], // 高亮周六日
+                todayHighlight: true, // 显示"今日"按钮
+                calendarWeeks: true
             });
         });
     })

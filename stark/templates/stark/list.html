@@ -21,9 +21,9 @@
                                             </a>
                                         </h4>
                                     </div>
-                                    <div id="collapseThree" class="panel-collapse collapse in" aria-expanded="true">
+                                    <div id="collapseThree" class="panel-collapse collapse in" aria-expanded="false">
                                         <div class="panel-body">
-                                            <table >
+                                            <table>
 
 
                                                 {% for row in search_row_list %}
@@ -50,14 +50,13 @@
 
                         {% endif %}
 
-                        <div class="row" style="margin-bottom:5px">
+                        <div class="row">
+
                             {% if action_dict %}
-
-                                <div class="pull-left col-sm-4">
-
+                                <div class="col-sm-4">
                                     {% csrf_token %}
                                     <div class="input-group">
-                                        <select class="form-control" name="action">
+                                        <select class="form-control input-sm " name="action">
                                             <option value="">请选择操作</option>
                                             {% for k,v in action_dict.items %}
                                                 <option value="{{ k }}">{{ v }}</option>
@@ -65,8 +64,8 @@
                                             {% endfor %}
                                         </select>
                                         <span class="input-group-btn">
-                                   <button class="btn btn-primary"><i class="fa fa-cogs"
-                                                                      id="btn_action"></i> &nbsp;执行</button>
+                                   <button class="btn btn-primary btn-sm"><i class="fa fa-cogs"
+                                                                             id="btn_action"></i> &nbsp;执行</button>
                                 </span>
                                     </div>
                                 </div>
@@ -82,11 +81,12 @@
                                     <form method="POST">
                                         {% csrf_token %}
                                         <div class="input-group">
-                                            <input type="text" class="form-control " name="search_context"
+                                            <input type="text" class="form-control input-sm"
+                                                   name="search_context"
                                                    autocomplete="off"
                                                    {% if search_context %}value="{{ search_context }}" {% endif %}>
                                             <span class="input-group-btn">
-                                        <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+                                        <button class="btn btn-primary btn-sm"><i class="fa fa-search"></i></button>
                                         </span>
                                         </div>
                                     </form>
@@ -95,6 +95,7 @@
 
 
                         </div>
+                        <br/>
                         <div class="row">
                             <table class="table table-hover table-bordered" id="table_list">
                                 <thead>
@@ -115,7 +116,7 @@
                             </table>
                         </div>
 
-                        <div class="row" style="margin-top: 8px">
+                        <div class="row">
                             <div class="fixed-table-pagination" style="margin-top:-10px">
                                 <div class="pull-left pagination-detail">
                                     <span class="pagination-info">显示第 {{ start }} 到第 {{ end }} 条记录，总共 {{ pager.all_count }} 条记录</span>

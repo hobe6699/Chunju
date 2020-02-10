@@ -68,3 +68,47 @@ def get_choice_list(model, field):
         return None
     except:
         return None
+
+
+def get_datetime_text(title, field, time_format='d'):
+    """
+    显示field 定制时间格式
+    :param title: 显示的表头标题
+    :param field: 字段名称
+    :param time_format: 时间格式  d:只显示日期，h:只显示时间，dh:显示日期和时间
+    :return:
+    """
+    format = '%Y-%m-%d'
+    if time_format == 'h':
+        format = '%H:%m:%S'
+    elif time_format == 'dh':
+        format = '%Y-%m-%d %H:%m:%S'
+    else:
+        format = '%Y-%m-%d'
+
+    def inner(self, obj=None, is_header=None):
+        if is_header:
+            return title
+        datetime_value = getattr(obj, field)
+
+        return datetime_value.strftime(format)
+
+    return inner
+
+
+def get_m2m_text(title, field):
+    """
+    显示field 类型为m2m的字段想要显示中文，可以用这个
+    :param title: 显示的表头标题
+    :param field: 字段名称
+    :return:
+    """
+
+    def inner(self, obj=None, is_header=None):
+        if is_header:
+            return title
+        queryset = getattr(obj, field)
+        text_list = [str(row) for row in queryset]
+        return ','.join(text_list)
+
+    return inner

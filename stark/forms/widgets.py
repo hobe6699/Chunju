@@ -3,7 +3,7 @@
 """
 __title__ = ''
 __author__ = 'mark'
-__mtime__ = '2020-02-09'
+__mtime__ = '2020-02-10'
 # code is far away from bugs with the god animal protecting
     I love animals. They taste delicious.
               ┏┓      ┏┓
@@ -19,15 +19,9 @@ __mtime__ = '2020-02-09'
                   ┃┫┫  ┃┫┫
                   ┗┻┛  ┗┻┛
 """
-import hashlib
+
+from django import forms
 
 
-def get_md5(origin):
-    """
-    md5加密
-    :param origin:
-    :return:
-    """
-    ha = hashlib.md5(b'mark_is_a_genius')  # b'mark_is_a_genius' 加盐
-    ha.update(origin.encode('utf-8'))  # encode('utf-8') 转换成字节
-    return ha.hexdigest()
+class DateTimePickerInput(forms.TextInput):
+    template_name = 'stark/forms/widget/datetime_picker.html'

@@ -221,7 +221,7 @@ def multi_permissions(request):
         if not router_row_dict:  # 如果不存在，不用管，会在要删除里面体现出来
             continue
         if value['url'] != router_row_dict['url']:  # 判断数据库中的url与项目中的url的值是否一致
-            print(value['url'], router_row_dict['url'])
+            #print(value['url'], router_row_dict['url'])
             value['url'] = 'url与数据库中的不一致'
 
     update_name_list = permission_name_set & router_name_set  # 数据库和项目中都有 交集
