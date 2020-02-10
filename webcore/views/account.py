@@ -17,6 +17,9 @@ def login(request):
     if request.method == "GET":
         org = organization.OrgInfo.objects.all().first()  # 获取公司配置信息
         return render(request, 'login.html', {"org": org})
+    img = request.FILES
+    imgname = request.POST
+    print(img, imgname)
     username = request.POST.get('username')
     password = md5.get_md5(request.POST.get('password'))
 

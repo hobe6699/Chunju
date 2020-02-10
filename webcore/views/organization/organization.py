@@ -35,9 +35,27 @@ class OrgGroupHandler(StartHandler):
     list_display = ['name', ]
 
 
+class ImageForm(forms.Form):
+    img = forms.ImageField(label='图片：')
+
+
 class OrgInfoHandler(StartHandler):
     list_display = ['org_group', 'name', 'full_name', 'img', 'address', 'telephone',
                     get_datetime_text('创建时间', 'create_date')]
+
+    def save(self, request, form, is_update, *args, **kwargs):
+        # MyImageForm = ImageForm(request.FILES)
+        # print(MyImageForm)
+        # if MyImageForm.is_valid():
+        #     print('ok')
+        #     org_info = OrgInfo()
+        #     org_info.img = MyImageForm.cleaned_data['picture']
+        #     org_info.save()
+        img = request.FILES.get('img')
+
+        form.cleaned_data['img'] = img
+        print(form.cleaned_data)
+        form.save()
 
 
 class OrgDeptHandler(StartHandler):
@@ -56,7 +74,8 @@ class OrgEmpAddModelForm(forms.ModelForm):
 
     class Meta:
         model = OrgEmp
-        fields = ['org_info', 'org_dept', 'org_position', 'username', 'name', 'email','hire_date', 'wechat', 'password',
+        fields = ['org_info', 'org_dept', 'org_position', 'username', 'name', 'email', 'hire_date', 'wechat',
+                  'password',
                   'confirm_password',
                   'roles']
 
@@ -141,7 +160,7 @@ class OrgEmpResetPasswordForm(StarkForm):
 
 
 class OrgEmpHandler(StartHandler):
-    def display_reset_password(self, obj=None, is_header=None):
+    def display_reset_password(self, obj=None, is_header=None, *args, **kwargs):
         """
         添加额外的字段 重置密码
         :param obj:
@@ -150,7 +169,7 @@ class OrgEmpHandler(StartHandler):
         """
         if is_header:
             return '重置密码'
-        url = self.revers_url(self.get_reset_password_url_name, pk=obj.pk)
+        url = self.revers_url(self.get_reset_password_url_name, pk=obj.pk, *args, **kwargs)
         return mark_safe("<a href='%s'>重置密码</a>" % url)
 
     @property

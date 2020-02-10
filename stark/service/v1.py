@@ -293,6 +293,10 @@ class StartHandler(object):
     search_group = []  # 用于定义快速筛选的字段
 
     action_dict = {}  # 存放批量操作的函数
+    list_template = None  # 用于自定义的列表页面的显示模版
+    add_template = None  # 用于自定义的添加页面的显示模版
+    edit_template = None  # 用于自定义的编码页面的显示模版
+    delete_template = None  # 用于自定义的删除页面的显示模版
 
     def action_multi_delete(self, request, *args, **kwargs):
         """
@@ -338,10 +342,10 @@ class StartHandler(object):
     def get_action_dict(self):
         return self.action_dict
 
-    def get_add_btn(self):
+    def get_add_btn(self, request, *args, **kwargs):
         if self.has_add_btn:
             return "<a href='%s' class='btn btn-primary btn-sm'><i class='fa fa-plus'></i> 新增</a>" % self.revers_url(
-                self.get_add_url_name)
+                self.get_add_url_name, *args, **kwargs)
         return None
 
     def get_list_display(self):
@@ -369,7 +373,7 @@ class StartHandler(object):
 
         return DynamicModelForm
 
-    def display_edit(self, obj=None, is_header=None):
+    def display_edit(self, obj=None, is_header=None, *args, **kwargs):
         """
          自定义在列表中显示的列
         :param obj: 表体显示的内空
@@ -384,20 +388,20 @@ class StartHandler(object):
             url = self.revers_url(self.get_change_url_name, pk=obj.pk)
             return mark_safe("<a href='%s'><i class='fa fa-edit fa-lg' style='color: #18A689'></i></a>" % url)
 
-    def display_del(self, obj=None, is_header=None):
+    def display_del(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return "删除"
         if obj:
             url = self.revers_url(self.get_delete_url_name, pk=obj.pk)
             return mark_safe("<a href='%s'><i class='fa fa-trash fa-lg' style='color: #CC6666'></i></a>" % url)
 
-    def display_id(self, obj=None, is_header=None):
+    def display_id(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return 'ID'
         if obj:
             return mark_safe("%s" % obj.pk)
 
-    def display_checkbox(self, obj=None, is_header=None):
+    def display_checkbox(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return 'checkbox_selected_all'
         if obj:
@@ -515,16 +519,6 @@ class StartHandler(object):
         checkbox_all = request.GET.get('checkbox_all')
         if checkbox_all:
             if 'true' in checkbox_all:
-                # name = "%s:%s" % (self.site.namespace, self.get_list_url_name)  # 获取list的url
-                # base_url = reverse(name)
-                # params = self.request.GET.copy()  # 0.2.1、获取GET的参数
-                # params._mutable = True  # 0.2.2、将参数允许编辑
-                # params['checkbox_all'] = '取消'
-                # url = "%s?%s" % (base_url, params.urlencode())  # 0.2.4、拼接url
-                # a_label = '<a href=%s>%s</a>' % (url, '取消')
-                # header_list.pop(0)
-                # header_list.insert(0, a_label)
-
                 row_list = []
                 for row in body_list:
                     # 将字符串转为列表
@@ -549,14 +543,15 @@ class StartHandler(object):
             row = item.get_queryset_or_tuple(self.model_class, request, *args, **kwargs)
             search_row_list.append(row)
 
-        return render(request, 'stark/list.html',
+        return render(request,
+                      self.list_template or 'stark/list.html',  # self.list_template or 'stark/list.html'使用自定义的模版没有就用默认的
                       {
                           "header_list": header_list,  # 表头数据
                           "body_list": body_list,  # 表体数据
                           "pager": pager,  # 显示当前是第几页
                           "start": pager.start + 1,  # 显示当前页面开始的条数
                           "end": pager.end if pager.end < pager.all_count else pager.all_count,  # 显示目前页面是第几条
-                          'add_btn': self.get_add_btn(),  # 添加按钮
+                          'add_btn': self.get_add_btn(request, *args, **kwargs),  # 添加按钮
                           'has_search': self.has_search,  # 定义是否有搜索功能
                           'search_context': search_context,  # 搜索框内容
                           'action_dict': action_dict,  # 执行事件列表
@@ -579,42 +574,48 @@ class StartHandler(object):
         url = self.reverse_list_url(*args, **kwargs)
         if request.method == "GET":
             form = model_form_class()
-            return render(request, 'stark/change.html', {"form": form, 'cancel': url})
+            return render(request, self.add_template or 'stark/change.html', {"form": form, 'cancel': url})
 
         form = model_form_class(data=request.POST)
         if form.is_valid():
-            self.save(request, form, False, *args, **kwargs)
+            response = self.save(request, form, False, *args, **kwargs)
             # 保存成功后，返回列表页面
-            return redirect(url)
-        return render(request, 'stark/change.html', {"form": form, 'cancel': url})
+            return response or redirect(url)
+        return render(request, self.add_template or 'stark/change.html', {"form": form, 'cancel': url})
 
     def get_change_object(self, request, pk, *args, **kwargs):
         return self.model_class.objects.filter(pk=pk).first()
 
     def change_view(self, request, pk, *args, **kwargs):
+        url = self.reverse_list_url(*args, **kwargs)
+
         current_change_object = self.get_change_object(request, pk, *args, **kwargs)  # 数据是否存在
         if not current_change_object:
             return HttpResponse('要修改的数据不存在!，请重新选择')  # 如果不存在，返回错误信息
+
         model_form_class = self.get_model_form_class(False, request, pk, *args, **kwargs)
-        url = self.reverse_list_url()
+
         if request.method == "GET":
             form = model_form_class(instance=current_change_object)
-            return render(request, 'stark/change.html', {"form": form, 'cancel': url})
+            return render(request, self.edit_template or 'stark/change.html', {"form": form, 'cancel': url})
 
-        form = model_form_class(instance=current_change_object, data=request.POST)
+        form = model_form_class(data=request.POST, instance=current_change_object)
 
         if form.is_valid():
             response = self.save(request, form, True, *args, **kwargs)
             # 保存成功后，返回列表页面
-            return response or redirect(self.reverse_list_url(*args, **kwargs))
-        return render(request, 'stark/change.html', {"form": form, 'cancel': url})
+            return response or redirect(url)
+        return render(request, self.edit_template or 'stark/change.html', {"form": form, 'cancel': url})
+
+    def delete_object(self, request, pk, *args, **kwargs):
+        return self.model_class.objects.filter(pk=pk).delete()
 
     def delete_view(self, request, pk, *args, **kwargs):
-        url = self.reverse_list_url()
+        url = self.reverse_list_url(*args, **kwargs)
         if request.method == "GET":
-            return render(request, 'stark/delete.html/', {'pk': pk, "cancel": url})
-        self.model_class.objects.filter(id=pk).delete()
-        return redirect(url)  # 跳转回列表页面
+            return render(request, self.delete_template or 'stark/delete.html/', {'pk': pk, "cancel": url})
+        response = self.delete_object(request, pk, *args, **kwargs)
+        return response or redirect(url)  # 跳转回列表页面
 
     def get_url_name(self, param):
         """
@@ -658,7 +659,7 @@ class StartHandler(object):
         """
         return self.get_url_name('delete')
 
-    def revers_url(self, name, pk=None, *args, **kwargs):
+    def revers_url(self, name, *args, **kwargs):
         """
         反向生成  url 主要目的保留原url的参数
         :param name:  要生成url类型  新增 修改 删除
@@ -667,11 +668,7 @@ class StartHandler(object):
         """
 
         name = "%s:%s" % (self.site.namespace, name)
-        if pk:
-            base_url = reverse(name, args=(pk,))
-        else:
-            base_url = reverse(name)
-
+        base_url = reverse(name, args=args, kwargs=kwargs)
         if not self.request.GET:
             url = base_url
         else:  # 如果有请求信息  作用保留原链接中的参数，当新增完成后，按原参数进行加载页面。保持原页面状态
@@ -688,7 +685,7 @@ class StartHandler(object):
         :return:
         """
         name = "%s:%s" % (self.site.namespace, self.get_list_url_name)
-        base_url = reverse(name)
+        base_url = reverse(name, args=args, kwargs=kwargs)
         param = self.request.GET.get('_filter')
         if not param:  # 如果没参数  直拉返回原地址
             url = base_url
