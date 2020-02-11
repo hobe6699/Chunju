@@ -8,20 +8,22 @@
 from django.shortcuts import render, redirect
 from rbac.service.init_permission import init_permission
 
-from webcore.models import organization
+from webcore.models import organization, system_config
 from webcore.utils import md5
 
 
 def login(request):
     # 1、用户登陆
     if request.method == "GET":
-        org = organization.OrgInfo.objects.all().first()  # 获取公司配置信息
-        return render(request, 'login.html', {"org": org})
-    img = request.FILES
-    imgname = request.POST
-    print(img, imgname)
+        config_exist = system_config.SystemConfig.objects.count()  # 判断配置信息是否存在
+        if config_exist < 1:
+            system_config.SystemConfig.objects.create(name='海象软件')  # 不存在就创建
+        sys_config = system_config.SystemConfig.objects.all().first()  # 获取配置信息
+        return render(request, 'login.html', {'sys_config': sys_config})
+
     username = request.POST.get('username')
     password = md5.get_md5(request.POST.get('password'))
+    print(username, password)
 
     current_user = organization.OrgEmp.objects.filter(name=username, password=password).first()
 
@@ -47,16 +49,16 @@ def login(request):
     if not emp:
         return render(request, 'login.html', {'msg': '此用户未分配对应的人员信息'})
     request.session['emp'] = emp  # 在session中存人员信息，方便后面调用
-    return redirect('/webcore/index/')
+    return redirect('/index/')
 
 
 def logout(request):
     request.session.delete(request.session.session_key)
-    return redirect('/webcore/login/')
+    return redirect('/login/')
 
 
 def error(request):
     return render(request, 'error.html',
                   {"error_code": 500, "error_title": "内部服务器错误", "error_content": "内部服务器错误，请尝试重新登陆!",
                    "a_name": "登陆",
-                   "a_href": "/webcore/login/"})
+                   "a_href": "/login/"})

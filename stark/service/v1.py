@@ -291,12 +291,14 @@ class StartHandler(object):
     model_form_class = None  # 用于用户自定制页面
     has_search = False  # 用于是否有搜索功能
     search_group = []  # 用于定义快速筛选的字段
-
     action_dict = {}  # 存放批量操作的函数
     list_template = None  # 用于自定义的列表页面的显示模版
     add_template = None  # 用于自定义的添加页面的显示模版
     edit_template = None  # 用于自定义的编码页面的显示模版
     delete_template = None  # 用于自定义的删除页面的显示模版
+    edit_a_color = '#18A689'  # 用于自定义的编辑按钮的颜色
+    delete_a_color = '#CC6666'  # 用于自定义的删除按钮的颜色
+    sort_list = ['-id']  # 用于自定义的排序的字段  默认最新的ID在最前面
 
     def action_multi_delete(self, request, *args, **kwargs):
         """
@@ -373,27 +375,31 @@ class StartHandler(object):
 
         return DynamicModelForm
 
-    def display_edit(self, obj=None, is_header=None, *args, **kwargs):
+    def display_edit(self, obj=None, is_header=None, *args, **kwargs, ):
         """
          自定义在列表中显示的列
         :param obj: 表体显示的内空
         :param is_header:  表头标题
+        :param a_color:  定义a标签的颜色
         :return:
         """
+
         if is_header:
             return "编辑"
         if obj:
             # name = "%s:%s" % (self.site.namespace, self.get_change_url_name)
             # url = reverse(name, args=(obj.pk,))
             url = self.revers_url(self.get_change_url_name, pk=obj.pk)
-            return mark_safe("<a href='%s'><i class='fa fa-edit fa-lg' style='color: #18A689'></i></a>" % url)
+            return mark_safe(
+                "<a href='%s'><i class='fa fa-edit fa-lg' style='color: %s'></i></a>" % (url, self.edit_a_color))
 
     def display_del(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return "删除"
         if obj:
             url = self.revers_url(self.get_delete_url_name, pk=obj.pk)
-            return mark_safe("<a href='%s'><i class='fa fa-trash fa-lg' style='color: #CC6666'></i></a>" % url)
+            return mark_safe(
+                "<a href='%s'><i class='fa fa-trash fa-lg' style='color:%s'></i></a>" % (url, self.delete_a_color))
 
     def display_id(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
@@ -449,6 +455,9 @@ class StartHandler(object):
                 else:
                     if field.verbose_name == verbose_name:
                         sort_field.append(field.name)
+
+        if not sort_field:
+            sort_field = self.sort_list
 
         # 1.2 全局搜索处理
 

@@ -1,56 +1,49 @@
 {% extends 'layout_content.html' %}
-{% load rbac %}
+{% load static %}
+
+
 {% block content %}
-    <div class="row border-bottom white-bg dashboard-header">
+    <div class="row wrapper wrapper-content">
         <div class="col-sm-12">
-            <div class="row">
-                <div class="col-sm-12">
-                    {% if request|has_permission:"webcore:group_add" %}
-                        <a class="btn btn-primary" href="{% url 'webcore:group_add' %}"> <i class="fa fa-plus"></i>&nbsp;添加组织</a>
-                    {% endif %}
-                </div>
-            </div>
-            <hr class="hr-line-dashed"/>
-            <div class="row">
-                <div class="col-sm-12">
-                    <table class="table table-hover table-bordered" data-toggle="table">
-                        <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>名称</th>
-                            {% if request|has_permission:"webcore:group_edit" or  request|has_permission:"webcore:group_del" %}
-                                <th>操作</th>
-                            {% endif %}
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for row in queryset.values %}
-                            <tr>
-                                {% for f in row.values %}
-                                    <td>{{ f }}</td>
-                                {% endfor %}
-                                <td>
-                                    {% if request|has_permission:"webcore:group_edit" %}
-                                        <a href="{% url 'webcore:group_edit' pk=row.id %}">
-                                            <i class="fa fa-edit" style="color: #18A689"></i>
-                                        </a>
-                                    {% endif %}
-                                    {% if request|has_permission:"webcore:group_del" %}|
+                {% for row in body_list %}
+                        <div class="text-center col-sm-3">
+                            <div class="widget lazur-bg p-xl">
+                                <h2>
+                                    {{ row.0 }}
+                                </h2>
+                                <h4>{{ row.4 }}</h4>
+                                <ul class="list-unstyled m-t-md">
+                                    <li>
+                                        <span class="fa fa-envelope m-r-xs"></span>
+                                        <label>Email:</label>
+                                        {{ row.1 }}
+                                    </li>
+                                    <li>
+                                        <span class="fa fa-home m-r-xs"></span>
+                                        <label>Address:</label>
+                                        {{ row.2 }}
+                                    </li>
+                                    <li>
+                                        <span class="fa fa-phone m-r-xs"></span>
+                                        <label>Contact:</label>
+                                        {{ row.3 }}
+                                    </li>
+                                </ul>
+                                <div style="color: white">
+                                    {{ row.5 }}
+                                </div>
 
-                                        <a href="{% url 'webcore:group_del' pk=row.id %}"> <i
-                                                class="fa fa-remove" style="color:#EC4859"></i></a>
-                                    {% endif %}
+                            </div>
 
-                                </td>
 
-                            </tr>
-
-                        {% endfor %}
-
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                        </div>
+                {% endfor %}
         </div>
     </div>
+
+{% endblock %}
+{% block js_content %}
+    <script>
+
+    </script>
 {% endblock %}

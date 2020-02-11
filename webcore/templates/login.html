@@ -1,15 +1,13 @@
 {% load static %}
 <!DOCTYPE html>
 <html>
-
 <head>
-
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 
-    <title>{% if org.name %}
-        {{ org.name }}
+    <title>{% if sys_config.name %}
+        {{ sys_config.name }}
 
     {% else %}
         海象软件
@@ -17,8 +15,8 @@
     </title>
     <meta name="keywords" content="H+后台主题,后台bootstrap框架,会员中心主题,后台HTML,响应式后台">
     <meta name="description" content="H+是一个完全响应式，基于Bootstrap3最新版本开发的扁平化主题，她采用了主流的左右两栏式布局，使用了Html5+CSS3等现代技术">
-    {% if org.img %}
-        <link rel="shortcut icon" href="{{ org.img.url }}">
+    {% if sys_config.ico %}
+        <link rel="shortcut icon" href="{{ sys_config.ico.url }}">
     {% else %}
         <link rel="shortcut icon" href="{% static 'img/luffy-study-logo.png' %}">
     {% endif %}
@@ -33,56 +31,86 @@
     <script>if (window.top !== window.self) {
         window.top.location = window.location;
     }</script>
+    <style>
+        body {
+
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            -moz-background-size: 100% 100%;
+        }
+
+        div.div_main {
+            margin-top: 40%;
+        }
+
+        div.div_opacity {
+            position: fixed;
+            background-color: #000;
+            background: rgba(0, 0, 0, 0.2);
+            text-align: center;
+            border-radius: 5%;
+        }
+
+        div.div_opacity_context {
+            margin: 10px 10px 10px 10px;
+            opacity: 1;
+            width: 300px;
+
+        }
+    </style>
 </head>
 
-<body class="gray-bg">
+<body class="gray-bg"
+      style="background-image: url({% if sys_config.background_img %} {{ sys_config.background_img.url }} {% else %}'/media/sys/bg1.jpg/'{% endif %});">
 
 <div class="middle-box text-center loginscreen  animated fadeInDown">
-    <div>
-        <div>
-            {% if org.img %}
-                <img style="width: 100px;height: 90px" src="{{ org.img.url }}" alt="">
-            {% else %}
-                <img style="width: 100px;height: 90px" src="{% static 'img/luffy.png' %}" alt="">
-            {% endif %}
+    <div class="div_main">
+
+        <div class="div_opacity">
+            <div class="div_opacity_context">
+                <div>
+                    {% if sys_config.ico %}
+                        <img style="width: 50px; height: 50px" src="{{ sys_config.ico.url }}" alt="系统图标">
+                    {% else %}
+                        <img style="width: 50px;height: 50px" src="/media/sys/logo.png/" alt="">
+                    {% endif %}
+
+                </div>
+                <h3 style="color: white">{% if sys_config.name %}
+                    {{ sys_config.name }}
+                {% else %}
+                    海象软件
+                {% endif %}
+                </h3>
+                <hr class="hr-line-solid">
+                <div>
+                    <form class="m-t" role="form" onsubmit="submitFun()" action='/login/' method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="用户名" required="" name="username">
+                        </div>
+                        <div class="form-group">
+                            <input type="password" class="form-control" placeholder="密码" required="" name="password">
+
+                        </div>
+                        <span style="color: red">{{ msg }}</span>
+                        <button type="submit" class="btn btn-primary block full-width m-b">登 录</button>
+                        <p class="text-muted text-center">
+                            <a href="login.html" style="color:white">
+                                <small>忘记密码</small>
+                            </a>
+                            |
+                            <a href="login.html" style="color:white">
+                                <small>注册帐号</small>
+                            </a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+
 
         </div>
-        <h3>{% if org.name %}
-            {{ org.name }}
-        {% else %}
-            海象软件
-        {% endif %}
-        </h3>
 
-        <form class="m-t" role="form" onsubmit="submitFun()" action='/webcore/login/' method="post">
-            {% csrf_token %}
-            <div class="form-group">
-                <input type="text" class="form-control" placeholder="用户名" required="" name="username">
-            </div>
-            <div class="form-group">
-                <input type="password" class="form-control" placeholder="密码" required="" name="password">
-
-            </div>
-            <span style="color: red">{{ msg }}</span>
-            <button type="submit" class="btn btn-primary block full-width m-b">登 录</button>
-
-
-            <p class="text-muted text-center"><a href="login.html#">
-                <small>忘记密码</small>
-            </a> | <a href="register.html">注册账号</a>
-            </p>
-
-        </form>
-
-
-        <form class="m-t" role="form" onsubmit="submitFun()" action='/webcore/login/' method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="form-group">
-                <input type="file" class="form-control" placeholder="用户名" required="" name="img">
-            </div>
-            <button type="submit" class="btn btn-primary block full-width m-b">登 录</button>
-
-        </form>
     </div>
 </div>
 
@@ -92,9 +120,13 @@
 <script src="{% static 'plugins/md5/jquery.js' %}"></script>
 <script src="{% static 'plugins/md5/jquery.md5.js' %}"></script>
 <script>
-    function submitFun() {
-        //  $("input[name='password']").val("input[name='password']").val());
-    }
+    $(function () {
+        let w = $('.div_opacity_context').width();
+        let h = $('.div_opacity_context').height();
+        $('.div_opacity').width = w + 10;
+        $('.div_opacity').height = h + 10
+    })
+
 </script>
 
 </body>

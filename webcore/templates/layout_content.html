@@ -18,7 +18,16 @@
     <link href="{% static 'plugins/hplus/css/plugins/chosen/chosen.css' %}" rel="stylesheet">
     <!--bootstrap-table表格-->
     <link href="{% static 'plugins/hplus/css/plugins/bootstrap-table/bootstrap-table.min.css' %}" rel="stylesheet">
+    <style>
+        body {
+            opacity: 0;
+            transition: opacity 0.2s
+        }
 
+        body.active {
+            opacity: 1
+        }
+    </style>
     {% block css_content %}
     {% endblock %}
 
@@ -58,6 +67,8 @@
             if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
         return fmt;
     };
+
+    $('body').addClass('active');
 
 
     $(function () {

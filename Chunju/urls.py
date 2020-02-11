@@ -20,13 +20,14 @@ from django.conf.urls.static import static
 from django.conf import settings
 from webcore.views import account
 from stark.service.v1 import site
+
 urlpatterns = [
     re_path(r'^stark/', site.urls),  # 把url指向stark中的urls中
     re_path('admin/', admin.site.urls),
     path('', account.login, name='webcore_login'),
     re_path(r"rbac/", include('rbac.urls', namespace='rbac')),  # 权限管理
     re_path(r"^webapp/", include('webapp.urls', namespace='webapp')),
-    # re_path(r"^", include('webcore.urls', namespace='webcore')),
+    re_path(r"^", include('webcore.urls', namespace='webcore')),
     re_path(r"web/", include('web.urls', namespace='web')),
     re_path(r'webcore/', include('webcore.urls', namespace='webcore')),
     re_path(r"companysafe/", include('companysafe.urls', namespace='companysafe'))

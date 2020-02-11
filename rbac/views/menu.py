@@ -153,6 +153,9 @@ def multi_permissions(request):
             has_error = False  # 是否出错
             for i in range(0, formset.total_form_count()):  # 循环验证每一行数据，是否在数据库中存在
                 row_dict = post_row_list[i]
+                print(row_dict)
+                row_dict.pop('pid')
+                print(row_dict)
                 try:
                     new_object = models.Permission(**row_dict)
                     new_object.validate_unique()  # 验证是否存在
@@ -171,9 +174,11 @@ def multi_permissions(request):
     if request.method == 'POST' and post_type == 'update':
         formset = update_formset_class(data=request.POST)  # 获取提交过来的数据
         if formset.is_valid():  # 进行验证
+            print(post_type)
             post_row_list = formset.cleaned_data  # 将数据存一份出来
             for i in range(0, formset.total_form_count()):  # 循环验证每一行数据，是否在数据库中存在
                 row_dict = post_row_list[i]
+                print(row_dict)
                 permission_id = row_dict.pop('id')
                 try:
                     row_object = models.Permission.objects.filter(id=permission_id).first()
@@ -221,7 +226,7 @@ def multi_permissions(request):
         if not router_row_dict:  # 如果不存在，不用管，会在要删除里面体现出来
             continue
         if value['url'] != router_row_dict['url']:  # 判断数据库中的url与项目中的url的值是否一致
-            #print(value['url'], router_row_dict['url'])
+            # print(value['url'], router_row_dict['url'])
             value['url'] = 'url与数据库中的不一致'
 
     update_name_list = permission_name_set & router_name_set  # 数据库和项目中都有 交集

@@ -32,7 +32,11 @@ from stark.forms import widgets
 
 
 class OrgGroupHandler(StartHandler):
-    list_display = ['name', ]
+    list_display = ['name', 'email', 'address', 'telephone', 'full_name']
+    list_template = 'organization/orggroup_list.html'
+    edit_a_color = 'white'
+    sort_list = ['id']
+
 
 
 class ImageForm(forms.Form):

@@ -13,6 +13,10 @@ from rbac.models import UserInfo as RbacUserInfo
 # 集团信息
 class OrgGroup(models.Model):
     name = models.CharField(verbose_name="组织名称", max_length=512)
+    full_name = models.CharField(max_length=512, verbose_name="组织全称", null=True, blank=True)
+    email = models.CharField(max_length=1024, verbose_name="组织邮箱", null=True, blank=True)
+    address = models.CharField(max_length=1024, verbose_name="组织地址", null=True, blank=True)
+    telephone = models.CharField(max_length=1024, verbose_name="组织电话", null=True, blank=True)
 
     def __str__(self):
         return self.name

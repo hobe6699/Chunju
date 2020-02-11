@@ -7,3 +7,4 @@
 # @Software: PyCharm
 # @Emial:5898387@qq.com
 
+from webcore.models.system_config import SystemConfig
