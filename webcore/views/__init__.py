@@ -7,7 +7,9 @@
 # @Software: PyCharm
 # @Emial:5898387@qq.com
 
+from webcore.views import system_config
 from webcore.views import account
 from webcore.views import home
 from webcore.views import ent_wachat_verify
+from webcore.views.organization import orggroup
 from webcore.views.organization import orggroup

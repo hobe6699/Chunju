@@ -62,3 +62,6 @@ def error(request):
                   {"error_code": 500, "error_title": "内部服务器错误", "error_content": "内部服务器错误，请尝试重新登陆!",
                    "a_name": "登陆",
                    "a_href": "/login/"})
+
+
+
