@@ -1,0 +1,2 @@
+from rbac.service.auto_register_permission import AutoRegisterPermission
+
