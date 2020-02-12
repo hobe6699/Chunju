@@ -40,7 +40,10 @@ class AutoRegisterPermission(object):
     def add_permission(self, name_class, name, url, menu_id, title):
         name = name
         url = url
-        obj = Permission.objects.get(name=name)
+
+        print(name)
+        obj = Permission.objects.filter(name = name)
+
         if obj:
             return
 
@@ -54,6 +57,8 @@ class AutoRegisterPermission(object):
             pid = self.check_permission_is_menu(name_class, 'list')
             self.check_permission(name=name, url=url, title='%s_删除' % title, pid=pid)
         if name_class in name and 'list' in name:
+            self.check_permission(name=name, url=url, title='%s' % title, menu_id=menu_id)
+        else:
             self.check_permission(name=name, url=url, title='%s' % title, menu_id=menu_id)
 
     def check_menu(self, name):

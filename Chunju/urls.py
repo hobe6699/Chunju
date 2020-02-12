@@ -29,7 +29,7 @@ urlpatterns = [
     re_path(r"^webapp/", include('webapp.urls', namespace='webapp')),
     re_path(r"^", include('webcore.urls', namespace='webcore')),
     re_path(r"web/", include('web.urls', namespace='web')),
-    re_path(r'webcore/', include('webcore.urls', namespace='webcore')),
+    #re_path(r'webcore/', include('webcore.urls', namespace='webcore')),
     re_path(r"companysafe/", include('companysafe.urls', namespace='companysafe'))
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # 显示上传的图片

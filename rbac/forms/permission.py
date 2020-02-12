@@ -14,4 +14,4 @@ from rbac.forms.base import BootStrapModelForm  # 基础样式
 class PermissionModelForm(BootStrapModelForm):
     class Meta:
         model = models.Permission
-        exclude = ['pid', 'menu']
+        exclude = ['menu']

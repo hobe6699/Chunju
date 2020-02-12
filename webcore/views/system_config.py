@@ -27,9 +27,9 @@ from rbac.service.auto_register_permission import AutoRegisterPermission
 
 
 def init_system_config(request):
-    url = routes.get_all_url_dict()
-    for k, v in url.items():
-        print(k)
+    # url = routes.get_all_url_dict()
+    # for k, v in url.items():
+    #     print(k)
     AutoRegisterPermission('org', '组织权限', 'orgemp', '人员').init_permission()
     AutoRegisterPermission('org', '组织权限', 'orgemp', '人员').init_permission()
     AutoRegisterPermission('org', '组织权限', 'orgdept', '部门').init_permission()
@@ -40,8 +40,9 @@ def init_system_config(request):
     AutoRegisterPermission('rbac', '组织权限', 'rbac_second_menu', '二级菜单').init_permission()
     AutoRegisterPermission('rbac', '组织权限', 'permission', '权限').init_permission()
     AutoRegisterPermission('org', '组织权限', 'orgposition', '岗位').init_permission()
-
     AutoRegisterPermission('system_config', '系统配置', 'system_config', '权限初始化').init_permission()
+    AutoRegisterPermission('webapp', '企业安全', 'area_class', '区域分类').init_permission()
+    AutoRegisterPermission('webapp', '企业安全', 'area', '区域管理').init_permission()
 
     # print(settings.DATABASES)
     # init_database_name = 'test02'
