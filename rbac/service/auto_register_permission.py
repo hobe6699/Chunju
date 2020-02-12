@@ -40,13 +40,17 @@ class AutoRegisterPermission(object):
     def add_permission(self, name_class, name, url, menu_id, title):
         name = name
         url = url
+        obj = Permission.objects.get(name=name)
+        if obj:
+            return
+
         if name_class in name and 'add' in name:
             pid = self.check_permission_is_menu(name_class, 'list')
             self.check_permission(name=name, url=url, title='%s_添加' % title, pid=pid)
-        if name_class in name and 'change' in name:
+        if name_class in name and 'change' in name or 'edit' in name:
             pid = self.check_permission_is_menu(name_class, 'list')
             self.check_permission(name=name, url=url, title='%s_编辑' % title, pid=pid)
-        if name_class in name and 'delete' in name:
+        if name_class in name and 'delete' in name or 'del' in name:
             pid = self.check_permission_is_menu(name_class, 'list')
             self.check_permission(name=name, url=url, title='%s_删除' % title, pid=pid)
         if name_class in name and 'list' in name:
@@ -73,6 +77,7 @@ class AutoRegisterPermission(object):
         :param pams2:类型
         :return:
         """
+
         obj = Permission.objects.filter(Q(name__contains=name) & Q(name__contains=pams))
         pk = None
         if obj:
@@ -117,5 +122,3 @@ class AutoRegisterPermission(object):
         rp = Role.objects.filter(title='admin', permissions=p_obj).exists()
         if not rp:
             r_obj.permissions.add(p_obj)
-
-

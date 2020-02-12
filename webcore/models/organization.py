@@ -102,3 +102,6 @@ class OrgEmp(RbacUserInfo):
     class Meta:
         db_table = 'org_emp'
         app_label = 'webcore'
+
+
+

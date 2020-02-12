@@ -94,11 +94,22 @@
 
                     {% for row in second_menus %}
                         <tr class="{% if row.id|safe == second_mid %}active{% endif %}">
-                            <td rowspan="2" class="text-center">
+                            <td class="text-center">
                                 <a href="?second_mid={{ row.id }}&mid={{ menu_id }}"><strong>{{ row.title }}</strong></a>
 
                             </td>
-                            <td>{{ row.name }}</td>
+                            <td>
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        {{ row.name }}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        {{ row.url }}
+                                    </div>
+                                </div>
+                            </td>
 
                             <td class="text-center">
                                 {% if request|has_permission:"rbac:rbac_second_menu_edit" %}
@@ -110,11 +121,6 @@
                                     <a href="{% memory_url request 'rbac:rbac_second_menu_del' pk=row.id %}"> <i
                                             class="fa fa-remove" style="color:#EC4859"></i></a>
                                 {% endif %}
-                            </td>
-                        </tr>
-                        <tr class="{% if row.id|safe == second_mid %}active{% endif %}">
-                            <td colspan="2" style="border-top:0">
-                                {{ row.url }}
                             </td>
                         </tr>
                     {% endfor %}
@@ -163,10 +169,19 @@
 
                     {% for row in permission %}
                         <tr class="{% if row.id|safe == second_mid %}active{% endif %}">
-                            <td rowspan="2" class="text-center">
+                            <td  class="text-center">
                                 <strong> {{ row.title }}</strong>
                             </td>
-                            <td>{{ row.name }}</td>
+                            <td> <div class="row">
+                                    <div class="col-sm-12">
+                                        {{ row.name }}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        {{ row.url }}
+                                    </div>
+                                </div></td>
 
                             <td class="text-center">
                                 {% if request|has_permission:"rbac:rbac_permission_edit" %}
@@ -180,11 +195,7 @@
                                 {% endif %}
                             </td>
                         </tr>
-                        <tr class="{% if row.id|safe == second_mid %}active{% endif %}">
-                            <td colspan="2" style="border-top:0">
-                                {{ row.url }}
-                            </td>
-                        </tr>
+
                     {% endfor %}
 
 

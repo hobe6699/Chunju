@@ -24,7 +24,7 @@ from webcore.utils import md5
 from django import forms
 from django.core.exceptions import ValidationError  # 验证结果的错误信息
 from django.utils.safestring import mark_safe
-from django.urls import re_path
+from django.urls import re_path,reverse
 from django.shortcuts import render, redirect, HttpResponse
 from webcore.models.organization import *
 from stark.utils.get_custom_choice import get_choice_text, get_datetime_text
@@ -36,7 +36,6 @@ class OrgGroupHandler(StartHandler):
     list_template = 'organization/orggroup_list.html'
     edit_a_color = 'white'
     sort_list = ['id']
-
 
 
 class ImageForm(forms.Form):
@@ -239,3 +238,5 @@ class OrgEmpHandler(StartHandler):
         SearchOption('org_dept', {'id__gt': 0}),
         SearchOption('org_position', {'id__gt': 0}),
     ]
+
+
