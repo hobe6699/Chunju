@@ -13,11 +13,15 @@ class ContractUser(models.Model):
     code = models.CharField(verbose_name='工号', max_length=64, unique=True)
     username = models.CharField(verbose_name='姓名', max_length=256)
     department = models.CharField(verbose_name='部门', max_length=64, null=True)
-    phone = models.CharField(verbose_name='手机号',max_length=32,null=True)
+    phone = models.CharField(verbose_name='手机号', max_length=32, null=True)
     create_date = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
 
     def __str__(self):
         return self.username
+
+    class Meta:
+        app_label = 'contract'
+        db_table = 'contract_contractUser'
 
 
 class Signature(models.Model):
@@ -27,3 +31,7 @@ class Signature(models.Model):
 
     def __str__(self):
         return self.name.username
+
+    class Meta:
+        app_label = 'contract'
+        db_table = 'contract_signature'

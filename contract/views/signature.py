@@ -7,9 +7,9 @@
 # @Software: PyCharm
 # @Email:5898387@qq.com
 from django.shortcuts import render, redirect, HttpResponse
-from contract.models.signature import Signature
+from contract.models.signature import *
 import datetime
-from stark.service.v1 import StartHandler, SearchOption, StarkModelForm, StarkForm
+
 
 
 def signature(request):
@@ -37,5 +37,4 @@ def signature(request):
     return render(request, 'contract_context.html', {'emp': emp, 'date': date, 'title': title})
 
 
-class SignatureHandler(StartHandler):
-    list_display = ['name', 'create_date']
+

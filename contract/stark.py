@@ -7,6 +7,8 @@
 # @Software: PyCharm
 # @Email:5898387@qq.com
 from stark.service.v1 import site
-from contract.views.signature import SignatureHandler
+from contract.views.handler import ContractUserHandler,SignatureUserHandler
+from contract.models.signature import ContractUser,Signature
 
-site.register(SignatureHandler)
+site.register(ContractUser,ContractUserHandler)
+site.register(ContractUser,SignatureUserHandler)
