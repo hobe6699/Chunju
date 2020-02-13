@@ -9,6 +9,7 @@
 from django.shortcuts import render, redirect, HttpResponse
 from contract.models.signature import Signature
 import datetime
+from stark.service.v1 import StartHandler, SearchOption, StarkModelForm, StarkForm
 
 
 def signature(request):
@@ -34,3 +35,7 @@ def signature(request):
         request.session['msg'] = '提交完成!'
         return redirect('/success/')
     return render(request, 'contract_context.html', {'emp': emp, 'date': date, 'title': title})
+
+
+class SignatureHandler(StartHandler):
+    list_display = ['name', 'create_date']
