@@ -15,7 +15,6 @@ def layout(request):
 
 def index(request):
     emp = request.session.get('emp')
-    print(emp)
     if not emp:
         return redirect('/')
     return render(request, 'index.html', {"emp": emp})
@@ -23,3 +22,8 @@ def index(request):
 
 def index_v1(request):
     return render(request, 'index_v1.html')
+
+
+def success(request):
+    msg = request.session['msg']
+    return render(request, 'public/success.html',{'msg':msg})

@@ -83,6 +83,7 @@ class OrgEmp(RbacUserInfo):
     org_info = models.ForeignKey(to='OrgInfo', on_delete=models.CASCADE, verbose_name="所属单位")
     org_dept = models.ForeignKey(to='OrgDept', on_delete=models.CASCADE, verbose_name="所属部门")
     org_position = models.ForeignKey(to='OrgPosition', on_delete=models.CASCADE, verbose_name="所属岗位")
+    code = models.CharField(verbose_name='工号', null=True, blank=True, max_length=128)
     username = models.CharField(max_length=512, verbose_name="姓名")
     gender_choices = (
         [1, '男'],
@@ -102,6 +103,3 @@ class OrgEmp(RbacUserInfo):
     class Meta:
         db_table = 'org_emp'
         app_label = 'webcore'
-
-
-

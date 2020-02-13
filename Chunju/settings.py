@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'web.apps.WebConfig',
     'rbac.apps.RbacConfig',
     'stark.apps.StarkConfig',
+    'contract.apps.ContractConfig',
 
 ]
 

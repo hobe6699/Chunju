@@ -7,7 +7,6 @@
 # @Software: PyCharm
 from django.shortcuts import render, redirect
 from rbac.service.init_permission import init_permission
-
 from webcore.models import organization, system_config
 from webcore.utils import md5
 

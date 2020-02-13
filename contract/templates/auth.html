@@ -1,0 +1,179 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>{% if sys_config.name %}
+        {{ sys_config.name }}
+
+    {% else %}
+        苏州热工研究院有限公司
+    {% endif %}
+    </title>
+    {% if sys_config.ico %}
+        <link rel="shortcut icon" href="{{ sys_config.ico.url }}">
+    {% else %}
+        <link rel="shortcut icon" href="{% static 'img/luffy-study-logo.png' %}">
+    {% endif %}
+
+    <link href="{% static 'plugins/hplus/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'plugins/hplus/css/font-awesome.css' %}" rel="stylesheet">
+    <link href="{% static 'plugins/hplus/css/animate.css' %}" rel="stylesheet">
+    <link href="{% static 'plugins/hplus/css/style.css' %}" rel="stylesheet">
+    <!--[if lt IE 9]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <script>if (window.top !== window.self) {
+        window.top.location = window.location;
+    }</script>
+    <style>
+        body {
+
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            -moz-background-size: 100% 100%;
+        }
+
+        div.div_main {
+            margin-top: 40%;
+        }
+
+        div.div_opacity {
+            position: fixed;
+            background-color: #000;
+            background: rgba(0, 0, 0, 0.2);
+            text-align: center;
+            border-radius: 5%;
+        }
+
+        div.div_opacity_context {
+            margin: 10px 10px 10px 10px;
+            opacity: 1;
+            width: 300px;
+
+        }
+    </style>
+</head>
+
+<body class="gray-bg"
+      style="background-image: url({% if sys_config.background_img %} {{ sys_config.background_img.url }} {% else %}'/media/sys/bgm1.jpg/'{% endif %});">
+
+<div class="middle-box text-center loginscreen  animated fadeInDown">
+    <div class="div_main">
+        <div class="div_opacity">
+            <div class="div_opacity_context">
+                <div>
+                    {% if sys_config.ico %}
+                        <img style="width: 50px; height: 50px" src="{{ sys_config.ico.url }}" alt="系统图标">
+                    {% else %}
+                        <img style="width: 228px;height: 45px" src="/media/sys/top2.png/" alt="">
+                    {% endif %}
+
+                </div>
+                <h3 style="color: white">{% if sys_config.name %}
+                    {{ sys_config.name }}
+                {% else %}
+                    <div>
+                        员工疫情防控
+                    </div>
+                    <div style="margin-top: 5px">
+                        个人承诺书签定平台
+                    </div>
+
+                {% endif %}
+                </h3>
+                <hr class="hr-line-solid">
+                <div>
+                    <form class="m-t" role="form" method="post">
+                        {% csrf_token %}
+                        <div id="div1">
+                            <div class="form-group">
+                                <input type="text" class="form-control input-lg" placeholder="姓名" required=""
+                                       name="username" oninput="show_code(this)">
+                            </div>
+                            <div class='form-group'><select class='form-control input-lg' name='code'>
+                                <option>---选择工号---</option>
+                            </select></div>
+                            <span style="color: red">{{ msg }}</span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary block full-width m-b">确 定</button>
+                    </form>
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+</div>
+
+<!-- 全局js -->
+<script src="{% static 'plugins/hplus/js/jquery.min.js' %}"></script>
+<script src="{% static 'plugins/hplus/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'plugins/md5/jquery.js' %}"></script>
+<script src="{% static 'plugins/md5/jquery.md5.js' %}"></script>
+<script>
+    $(function () {
+        let w = $('.div_opacity_context').width();
+        let h = $('.div_opacity_context').height();
+        $('.div_opacity').width = w + 10;
+        $('.div_opacity').height = h + 10;
+
+    });
+
+    function show_code(that) {
+        console.log($(that));
+        // let lab = "<label style='margin-left: 5px' class='label label-default' onclick='add_code(this)' value='1'>123</label>";
+        //$('#show_code_label').append(lab);
+        let username = $(that).val();
+        let csrfmiddlewaretoken = $("input[name='csrfmiddlewaretoken']").val();
+        $.post('/contract/code/', {'csrfmiddlewaretoken': csrfmiddlewaretoken, "username": username}, function (data) {
+            $("select[name='code']").remove();
+            $("input[name='code']").remove();
+            console.log(data);
+            if (data != 0) {
+                if (data == 9) {
+                    let input_code = "<div class='form-group'> <input  required='' type='text' class='form-control input-lg' placeholder='请输入工号' name='code'></div>";
+                    $("#div1").append(input_code);
+
+                    console.log(data);
+                    return
+                }
+
+                let sel_code = "<div class='form-group'><select class='form-control input-lg'  name='code'><option>---选择工号---</option></select></div>";
+
+
+                $("#div1").append(sel_code);
+
+
+                code_list = JSON.parse(data);
+                if (code_list.length > 1) {
+                    $.each(code_list, function (k, v) {
+                        let selA = "<option";
+                        let selB = " value='" + v + "' >" + v;
+                        let selC = "</option>";
+                        let selD = selA + selB + selC;
+                        console.log(selD);
+                        $("select[name='code']").append(selD);
+                    });
+                } else {
+                    let selA = "<option selected";
+                    let selB = " value='" + code_list[0] + "' >" + code_list[0];
+                    let selC = "</option>";
+                    let selD = selA + selB + selC;
+                    $("select[name='code']").append(selD);
+                }
+            }
+        })
+    }
+
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,139 @@
+{% extends 'layout_content.html' %}
+{% load static %}
+{% block content %}
+    <div class="wrapper wrapper-content">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-content">
+                            <div class="text-center">
+                                <h2><strong>员工疫情防控个人承诺书</strong></h2>
+                            </div>
+                            <hr>
+                            <p>
+                                &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;疫情就是命令，防控就是责任。为认真贯彻习近平总书记重要指示、批示精神，坚决完成好疫情防控阻击战这个重大政治任务，为公司安全生产和同事身体健康保驾护，我承诺:
+                            </p>
+                            <ol>
+                                <li>主动学习并遵守政府、集团、公司应急防控要求;</li>
+                                <li>主动执行公司疫情报告制度，不虚报、瞒报、漏报、迟报；</li>
+                                <li>主动配合公司开展体温监测，严格做好个人防护，规范佩戴口罩；</li>
+                                <li>遵守用餐规定，错峰就餐；</li>
+                                <li>上班在岗，坚守本职，不串岗；</li>
+                                <li>不信谣，不传谣，不传播非官方渠道发布的疫情相关信息。</li>
+                            </ol>
+                            <div class="form-group">
+                                <input type="checkbox" name="ch" class="iCheck-helper" id="check_ok" checked>
+                                <label for="check_ok">我已全部知晓并同意以上内容。</label>
+                            </div>
+                            <div class="form-group">
+                                <label for="img_sig">承诺人:</label> <img id="img_sig">
+                            </div>
+                            <div>
+                                <label>承诺日期:{{ date }}</label>
+                            </div>
+                            <hr>
+                            <label>签名:</label>
+                            <div class="text-center" style="height: 240px">
+                                <div id="signature" style="border: 1px grey solid">
+
+                                </div>
+                            </div>
+                            {% if msg %}
+                                <div class="text-center" style="margin-top: 10px">
+                                    <label class="label label-danger"> {{ msg }}</label>
+                                </div>
+
+                            {% endif %}
+
+                            <div style="margin-top: 10px">
+                                <input type="button" class="btn btn-warning" onclick="clearSig()"
+                                       value="重写">
+
+                                <input type="button" class="btn btn-success" onclick="confirm_sig()"
+                                       value="确认签字">
+
+                                <button type="submit" class="btn btn-primary pull-right" name="pk"
+                                        style="margin-left:5px" disabled="disabled" onclick="importImg()"
+                                        value="{{ emp.pk }}">提交
+
+                                </button>
+
+                            </div>
+                            <div>
+                                <label class="pull-right label label-default">提示:需要确认签字后才能提交</label>
+                            </div>
+                            <div>
+                                <input type="text" name="sig" id="sig" hidden>
+                                <input type="text" name="sig_length" id="sig_length" hidden>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    </div>
+{% endblock %}
+
+{% block js_content %}
+    <script src="{% static '/plugins/jSignature/jSignature.js' %}"></script>
+    <script>
+        //初始化画布
+        $(document).ready(function () {
+            let w = $("#signature").parent().width() - 10;
+            console.log(w);
+            let h = $("#signature").parent().height();
+            $("#signature").jSignature({height: h, width: w, color: "#000", lineWidth: 4});
+        });
+
+        /**
+         $(function () {
+            $('#clearSig').on('click', function () {
+                $("#signature").jSignature("clear");
+            })
+        });
+         **/
+
+        function clearSig() {
+            $("#signature").jSignature("clear");
+            $('#img_sig').removeAttr('src');
+            $('#img_sig').width(0);
+            $('#img_sig').height(0);
+            document.getElementById('sig_length').value = 0;
+            $("button[type='submit']").attr('disabled', 'disabled')
+        }
+
+        function confirm_sig() {
+            let sig = $('#signature');
+            let sig_data = sig.jSignature('getData');
+            let sig_length = $('#signature').jSignature('getData', 'native').length;
+            if (sig_length > 0) {
+                $('#img_sig').width(95);
+                $('#img_sig').height(80);
+                $('#img_sig').attr('src', sig_data);
+                document.getElementById('sig_length').value = sig_length;
+                document.getElementById('sig').value = sig_data;
+                $("button[type='submit']").removeAttr('disabled')
+            } else {
+
+                alert("请签字！")
+
+            }
+        }
+
+        function importImg() {
+            let sig = $('#signature');
+            let sig_data = sig.jSignature('getData');
+            let sig_length = $('#signature').jSignature('getData', 'native').length;
+            document.getElementById('sig_length').value = sig_length;
+            document.getElementById('sig').value = sig_data;
+        }
+
+
+    </script>
+
+
+
+{% endblock %}

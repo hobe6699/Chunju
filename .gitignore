@@ -130,3 +130,5 @@ dmypy.json
 /webcore/migrations/*
 /webapp/migrations/*
 /rbac/migrations/*
+/contract/migrations/*
+webapp/static/css/
