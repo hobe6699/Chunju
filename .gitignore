@@ -130,5 +130,14 @@ dmypy.json
 
 
 /contract/migrations/*
+!/contract/migrations/__init__.py
 /webapp/migrations/*
 !/webapp/migrations/__init__.py
+/webcore/migrations/*
+!/webcore/migrations/__init__.py
+
+/rbac/migrations/*
+!/rbac/migrations/__init__.py
+
+/stark/migrations/*
+!/stark/migrations/__init__.py
