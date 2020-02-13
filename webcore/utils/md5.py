@@ -28,6 +28,7 @@ def get_md5(origin):
     :param origin:
     :return:
     """
-    ha = hashlib.md5(b'mark_is_a_genius')  # b'mark_is_a_genius' 加盐
+    #ha = hashlib.md5(b'mark_is_a_genius')  # b'mark_is_a_genius' 加盐
+    ha = hashlib.md5()
     ha.update(origin.encode('utf-8'))  # encode('utf-8') 转换成字节
     return ha.hexdigest()
