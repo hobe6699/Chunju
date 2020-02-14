@@ -23,7 +23,7 @@ from stark.service.v1 import StartHandler, SearchOption, StarkModelForm, StarkFo
 
 
 class ContractUserHandler(StartHandler):
-    list_display = ['username']
+    list_display = ['username', 'code', 'department', 'phone']
 
 
 class SignatureUserHandler(StartHandler):
