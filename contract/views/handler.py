@@ -57,7 +57,7 @@ class ContractUserHandler(StartHandler):
                  "no_sing_number": person_number - sing_number.count()}]
 
     extra_data = sings_number
-    list_display = ['username', 'code', 'department', 'phone', display_is_sing,display_show_sing]
+    list_display = ['username', 'code', 'department', 'phone', display_is_sing]
     list_template = 'contract/list.html'
     has_del_btn = False
     has_search = True
