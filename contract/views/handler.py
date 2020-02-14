@@ -41,7 +41,8 @@ class ContractUserHandler(StartHandler):
             return '签名'
         sig = Signature.objects.filter(name_id=obj.pk)
         if sig:
-            signature_img = Signature.objects.get(name_id=obj.pk)
+            signature_img = Signature.objects.get(name_id=obj.pk).first()
+
             lab = "<img src='%s' style='width:95px; height:80px'>" % signature_img.signature
         else:
             lab = "<label class='label badge-danger'>None</label>"
