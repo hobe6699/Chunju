@@ -288,8 +288,8 @@ class StartHandler(object):
     list_display = []  # 用于定义列表显示的列
     per_page_count = 10  # 列表中每页显示的行数
     has_add_btn = True  # 用于判断是否有添加按钮
-    has_edit_btn = True
-    has_del_btn = True
+    has_edit_btn = True  # 是否有编辑按钮
+    has_del_btn = True  # 是否有删除按钮
     model_form_class = None  # 用于用户自定制页面
     has_search = False  # 用于是否有搜索功能
     search_group = []  # 用于定义快速筛选的字段
@@ -301,6 +301,7 @@ class StartHandler(object):
     edit_a_color = '#18A689'  # 用于自定义的编辑按钮的颜色
     delete_a_color = '#CC6666'  # 用于自定义的删除按钮的颜色
     sort_list = ['-id']  # 用于自定义的排序的字段  默认最新的ID在最前面
+    extra_data = []  # 用户向页面传递额外的数据
 
     def action_multi_delete(self, request, *args, **kwargs):
         """
@@ -360,8 +361,10 @@ class StartHandler(object):
         value = []
         if self.list_display:  # 当定义了显示名称时
             value.extend(self.list_display)  # 按显示名称显示，
-            value.append(StartHandler.display_edit)  # 并默认加上编辑和删除方法
-            value.append(StartHandler.display_del)
+            if self.has_edit_btn:
+                value.append(StartHandler.display_edit)  # 并默认加上编辑和删除方法
+            if self.has_del_btn:
+                value.append(StartHandler.display_del)
 
         return value
 
@@ -568,6 +571,7 @@ class StartHandler(object):
                           'action_dict': action_dict,  # 执行事件列表
                           'search_group': search_group,  # 快速筛选
                           'search_row_list': search_row_list,  # 快速筛选的数据
+                          'extra_data': self.extra_data,  # 额外的数据
                       }
                       )
 

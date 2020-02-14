@@ -29,7 +29,6 @@ class ContractUserHandler(StartHandler):
     def display_is_sing(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return '是否签名'
-        print(obj.pk)
         sig = Signature.objects.filter(name_id=obj.pk)
         if sig:
             lab = "<label class='label badge-success'>是</label>"
@@ -37,8 +36,19 @@ class ContractUserHandler(StartHandler):
             lab = "<label class='label badge-danger'>否</label>"
         return mark_safe(lab)
 
+    def sings_number(self):
+        person_number = ContractUser.objects.all().count()
+        person_id_list = ContractUser.objects.all().values_list('id')
+        sing_number = Signature.objects.filter(name_id__in=person_id_list).count()
+
+        return [{"person_number": person_number, "sing_number": sing_number,
+                "no_sing_number": person_number - sing_number}]
+
+    extra_data = sings_number
     list_display = ['username', 'code', 'department', 'phone', display_is_sing]
     list_template = 'contract/list.html'
+    has_del_btn = False
+    has_search = True
 
 
 class SignatureUserHandler(StartHandler):
