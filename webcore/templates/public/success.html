@@ -10,14 +10,16 @@
                 <div>
                     <h3><strong><i class="fa fa-compass"></i>{% if msg %}{{ msg }}{% else %}成功{% endif %}</strong>
                     </h3></div>
+                <!---
                 <div class="row m-t-lg">
                     <div class=" col-sm-12">
-                        <a class="btn btn-default" href="javascript:history.back(-1)">
+                        <a class="btn btn-default" href="javascript:window.opener=null;window.open('','_self');window.close();">
                             <i class="fa fa-arrow-circle-left"></i>
-                            &nbsp;确认
+                            &nbsp;确定
                         </a>
                     </div>
                 </div>
+--->
             </form>
         </div>
     </div>

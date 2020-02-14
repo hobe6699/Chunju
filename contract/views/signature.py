@@ -20,14 +20,14 @@ def signature(request):
     if not emp:
         return redirect('/contract/auth/')
     pk = emp['pk']
-    sig_obj = Signature.objects.filter(name_id=pk).count()
-    if sig_obj:
-        request.session['msg'] = '已经提交过了！'
-        return redirect('/success/')
+    # sig_obj = Signature.objects.filter(name_id=pk).count()
+    # if sig_obj:
+    #     request.session['msg'] = '已经提交过了！'
+    #     return redirect('/success/')
     if request.method == 'GET':
         return render(request, 'contract_context.html', {'emp': emp, 'date': date, 'title': title})
-    sig = request.POST.get('sig')
-    sig_length = request.POST.get('sig_length')
+    sig = request.POST.get('sig') # 获取签名
+    sig_length = request.POST.get('sig_length') # 获取签名长度
     if int(sig_length) <= 0:
         return render(request, 'contract_context.html', {'emp': emp, 'date': date, 'title': title, 'msg': '请签名!'})
     obj = Signature.objects.create(name_id=pk, signature=sig)
