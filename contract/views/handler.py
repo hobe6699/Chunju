@@ -27,4 +27,4 @@ class ContractUserHandler(StartHandler):
 
 
 class SignatureUserHandler(StartHandler):
-    list_display = ['username']
+    list_display = ['name']
