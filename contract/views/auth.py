@@ -21,7 +21,7 @@ def auth(request):
     if not current_user:
         obj = ContractUser.objects.filter(code=code).first()
         if obj:
-            return render(request, 'auth.html', {"msg": "检测到工号已存在，请重新输入"})
+            return render(request, 'auth.html', {"msg": "工号已存在，或工号与姓名不一致"})
         ContractUser.objects.create(username=username, code=code)
     current_user = ContractUser.objects.filter(username=username, code=code).first()
     emp = {'pk': current_user.pk,
