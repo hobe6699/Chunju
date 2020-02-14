@@ -17,7 +17,7 @@ def auth(request):
         return render(request, 'auth.html')
     username = request.POST.get('username')
     code = request.POST.get('code')
-    if "选择工号" in code and not code:
+    if "选择工号" in code or not code:
         return render(request, 'auth.html', {"msg": "工号不能为空!"})
     current_user = ContractUser.objects.filter(username=username, code=code).first()
     if not current_user:
