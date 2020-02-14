@@ -21,7 +21,7 @@ class ContractUser(models.Model):
 
     class Meta:
         app_label = 'contract'
-        db_table = 'contract_contractUser'
+        db_table = 'contract_contract_user'
 
 
 class Signature(models.Model):
