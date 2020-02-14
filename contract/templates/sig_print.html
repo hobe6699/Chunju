@@ -1,0 +1,97 @@
+{% load static %}
+<html>
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H+ 后台主题UI框架 - 单据打印</title>
+    <link href="{% static 'plugins/hplus/css/bootstrap.min.css?v=3.3.6" rel="stylesheet' %}">
+    <link href="{% static 'plugins/hplus/css/font-awesome.css?v=4.4.0" rel="stylesheet' %}">
+
+    <link href="{% static 'plugins/hplus/css/animate.css" rel="stylesheet' %}">
+    <link href="{% static 'plugins/hplus/css/style.css?v=4.1.0" rel="stylesheet' %}">
+
+</head>
+
+<body class="white-bg">
+<div class="wrapper wrapper-content p-xl">
+    <div class="ibox-content p-xl">
+        <div class="row">
+            <div class=" col-md-6 col-md-offset-3" style="width:100%">
+                <h3><strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;苏州院“新冠肺炎”疫情防控</strong></h3>
+                <h3><strong>个人承诺书</strong></h3>
+
+            </div>
+        </div>
+
+        <hr>
+        <p>
+            &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;疫情就是命令，防控就是责任。为打赢新冠病毒肺炎疫情防控阻击战，切实保障自身和他人身体健康和生命安全，为公司安全生产保驾护航，作为公司一员，我郑重承诺：
+        </p>
+        <p>1、认真学习防疫法规、公司应急防控规定和防疫知识;
+        </p>
+        <p>2、积极参与和支持疫情防控工作，服从指挥、听从安排;</p>
+        <p>3、如实申报个人防疫信息，绝不瞒报、谎报、漏报、错报；</p>
+        <p>4、主动配合每日体温检测，及时报告身体异常情况，按规定接受隔离；</p>
+        <p>5、严格做好个人防护，规范佩戴口罩，勤洗手，保持良好个人卫生；</p>
+        <p>6、上班坚守岗位，不聚集，谈话做事保持安全距离；下班减少外出，不组织或参加聚会聚餐；</p>
+        <p>7、遵守公司食堂用餐规定，错峰就餐，不扎堆、不面对面就餐；</p>
+        <p>8、坚决避免直接接触任何野生动物，绝不食用野味；</p>
+        <p>9、科学理性关注疫情，不恐慌，不造谣，不传谣，不信谣;</p>
+        <p>10、疫情防控，人人都是一道屏障！</p>
+        <p>
+            <strong>如有违反，我愿意承担相应的责任。</strong>
+        </p>
+        <p>
+            附:中广核新型冠状病毒肺炎疫情防控十四条
+        </p>
+
+        <p>1、进入公共场所一律佩戴口罩；</p>
+        <p>2、进入基地/办公场所、乘坐班车人员一律安排测温，体温超过37.3℃拒绝入内；</p>
+        <p>3、明确基地核心和重要区域，严格控制人员出入，做好测温和登记；</p>
+        <p>4、对核电站重点人群(如运行值班人员)进行重点防护，指定专人负责和跟踪，发现异常及时隔离；</p>
+        <p>5、保持办公室、会议室、餐厅、电梯间、洗手间、班车等公共场所的通风，每天定期消毒；</p>
+        <p>6、要求有疑似症状的人员及时报告并就医；</p>
+        <p>7、湖北返回的员工、家中有湖北返回人员的员工、近期曾密切接触确诊或疑似病例的员工，自返回或脱离接触之日起自行居家隔离21天；</p>
+        <p>8、原则上不接待外部人员非必要的来访；</p>
+        <p>9、不安排到湖北出差，最大程度减少出差安排；</p>
+        <p>10、取消一切非必要的集体活动，精简、取消或延后会议，提倡通过电话或视频召开会议；</p>
+        <p>11、降低餐厅就餐人员密度，实行错峰就餐，避免面对面就餐，鼓励打包就餐；</p>
+        <p>12、节后上班不开展互相走访、拜年发利是等活动；</p>
+        <p>13、长途班车乘车人员信息可追溯，核电基地上下班车、巡回班车尽量保持通风，降低乘车密度；</p>
+        <p>14、各核电基地2月3日前备好人员隔离场所和相应物资。</p>
+
+        <!--
+            <div class="form-group">
+                <input type="checkbox" name="ch" class="iCheck-helper" id="check_ok" checked>
+                <label for="check_ok">我已全部知晓并同意以上内容。</label>
+            </div>
+            -->
+        <div class="form-group" style="margin-top: 20px">
+            <label for="img_sig">承诺人:</label>
+            <div style="margin-left:50px"><img id='img_sig' src="{{ sig_img }}" style="width:95px;height: 80px"></div>
+
+        </div>
+        <div>
+            <label>承诺日期:{{ sig_date }}</label>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- 全局js -->
+<script src="{% static 'plugins/hplus/js/jquery.min.js' %}"></script>
+<script src="{% static 'plugins/hplus/js/bootstrap.min.js' %}"></script>
+
+
+<!-- 自定义js -->
+<script src="{% static 'plugins/hplus/js/content.js' %}"></script>
+
+<script type="text/javascript">
+    window.print();
+</script>
+
+
+</body>
+</html>

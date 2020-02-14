@@ -298,6 +298,7 @@ class StartHandler(object):
     add_template = None  # 用于自定义的添加页面的显示模版
     edit_template = None  # 用于自定义的编码页面的显示模版
     delete_template = None  # 用于自定义的删除页面的显示模版
+    print_template = None   # 用于自定义打印模版
     edit_a_color = '#18A689'  # 用于自定义的编辑按钮的颜色
     delete_a_color = '#CC6666'  # 用于自定义的删除按钮的颜色
     sort_list = ['-id']  # 用于自定义的排序的字段  默认最新的ID在最前面
