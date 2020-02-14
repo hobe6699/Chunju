@@ -31,7 +31,7 @@ class Signature(models.Model):
     create_date = models.DateTimeField(auto_now_add=True, verbose_name='签名时间')
 
     def __str__(self):
-        return self.name
+        return self.name.username
 
     class Meta:
         app_label = 'contract'

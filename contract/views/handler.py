@@ -39,11 +39,9 @@ class ContractUserHandler(StartHandler):
     def display_show_sing(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return '签名'
-        sig = Signature.objects.filter(name_id=obj.pk)
+        sig = Signature.objects.filter(name_id=obj.pk).all()
         if sig:
-            signature_img = Signature.objects.get(name_id=obj.pk)
-
-            lab = "<img src='%s' style='width:95px; height:80px'>" % signature_img.signature
+            lab = "<img src='%s' style='width:95px; height:80px'>" % sig[0].signature
         else:
             lab = "<label class='label badge-danger'>None</label>"
         return mark_safe(lab)
@@ -51,13 +49,15 @@ class ContractUserHandler(StartHandler):
     def sings_number(self):
         person_number = ContractUser.objects.all().count()
         person_id_list = ContractUser.objects.all().values_list('id')
-        sing_number = Signature.objects.filter(name_id__in=person_id_list).count()
 
-        return [{"person_number": person_number, "sing_number": sing_number,
-                 "no_sing_number": person_number - sing_number}]
+        sing_list = Signature.objects.filter(name_id__in=person_id_list).values('name_id')
+        sing_number = sing_list.distinct()
+        sing_number.count()
+        return [{"person_number": person_number, "sing_number": sing_number.count(),
+                 "no_sing_number": person_number - sing_number.count()}]
 
     extra_data = sings_number
-    list_display = ['username', 'code', 'department', 'phone', display_is_sing]
+    list_display = ['username', 'code', 'department', 'phone', display_is_sing,display_show_sing]
     list_template = 'contract/list.html'
     has_del_btn = False
     has_search = True
