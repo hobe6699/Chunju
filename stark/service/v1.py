@@ -288,6 +288,8 @@ class StartHandler(object):
     list_display = []  # 用于定义列表显示的列
     per_page_count = 10  # 列表中每页显示的行数
     has_add_btn = True  # 用于判断是否有添加按钮
+    has_edit_btn = True
+    has_del_btn = True
     model_form_class = None  # 用于用户自定制页面
     has_search = False  # 用于是否有搜索功能
     search_group = []  # 用于定义快速筛选的字段

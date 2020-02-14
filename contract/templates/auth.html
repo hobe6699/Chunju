@@ -20,10 +20,12 @@
     {% endif %}
 
     <link href="{% static 'plugins/hplus/css/bootstrap.min.css' %}" rel="stylesheet">
-    <link href="{% static 'plugins/hplus/css/font-awesome.css' %}" rel="stylesheet">
-    <link href="{% static 'plugins/hplus/css/animate.css' %}" rel="stylesheet">
+
     <link href="{% static 'plugins/hplus/css/style.css' %}" rel="stylesheet">
-    <!--[if lt IE 9]>
+<!--[if lt IE 9]>
+    <link href="{% static 'plugins/hplus/css/font-awesome.css' %}" rel="stylesheet">
+
+ <link href="{% static 'plugins/hplus/css/animate.css' %}" rel="stylesheet">
     <meta http-equiv="refresh" content="0;ie.html" />
     <![endif]-->
     <script>if (window.top !== window.self) {
@@ -65,6 +67,7 @@
     <div class="div_main">
         <div class="div_opacity">
             <div class="div_opacity_context">
+            <!--
                 <div>
                     {% if sys_config.ico %}
                         <img style="width: 50px; height: 50px" src="{{ sys_config.ico.url }}" alt="系统图标">
@@ -73,14 +76,15 @@
                     {% endif %}
 
                 </div>
+                -->
                 <h3 style="color: #014B85">{% if sys_config.name %}
                     {{ sys_config.name }}
                 {% else %}
-                    <div>
-                        "新冠肺炎“疫情防控
+                    <div style="margin-top: 20px">
+                        <strong>苏州热工研究院</strong>
                     </div>
-                    <div style="margin-top: 5px">
-                        个人承诺书签定平台
+                    <div style="margin-top: 10px">
+                        疫情防控个人承诺书
                     </div>
 
                 {% endif %}
@@ -111,11 +115,13 @@
     </div>
 </div>
 
-<!-- 全局js -->
+
 <script src="{% static 'plugins/hplus/js/jquery.min.js' %}"></script>
 <script src="{% static 'plugins/hplus/js/bootstrap.min.js' %}"></script>
+<!-- 全局
 <script src="{% static 'plugins/md5/jquery.js' %}"></script>
 <script src="{% static 'plugins/md5/jquery.md5.js' %}"></script>
+js -->
 <script>
     $(function () {
         let w = $('.div_opacity_context').width();
