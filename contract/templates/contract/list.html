@@ -5,10 +5,29 @@
 {% block content %}
     <div class="row wrapper wrapper-content">
         <div class="col-sm-12">
-        <div class="ibox">
-            <div class="ibox-title">表头</div>
-            <div class="ibox-content">{{extra_data}}</div>
-        </div>
+            <div class="ibox">
+                <table class="table">
+                    <tbody>
+                    <tr>
+                        <td>
+
+                            <button type="button" class="btn btn-info m-r-sm"> 总人数:{{ extra_data.0.person_number }}</button>
+
+                        </td>
+                        <td>
+
+                            <button type="button" class="btn btn-success m-r-sm"> 已签人数:{{ extra_data.0.sing_number }}</button>
+
+                        </td>
+                        <td>
+
+                            <button type="button" class="btn btn-danger m-r-sm"> 未签人数:{{ extra_data.0.no_sing_number }}</button>
+
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
             <div class="ibox">
                 <form method="post">
                     {% csrf_token %}
