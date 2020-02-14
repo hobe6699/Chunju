@@ -41,7 +41,7 @@ class ContractUserHandler(StartHandler):
             return '签名'
         sig = Signature.objects.filter(name_id=obj.pk)
         if sig:
-            signature_img = Signature.objects.get(name_id=obj.pk).first()
+            signature_img = Signature.objects.get(name_id=obj.pk)
 
             lab = "<img src='%s' style='width:95px; height:80px'>" % signature_img.signature
         else:
@@ -57,7 +57,7 @@ class ContractUserHandler(StartHandler):
                  "no_sing_number": person_number - sing_number}]
 
     extra_data = sings_number
-    list_display = ['username', 'code', 'department', 'phone', display_is_sing, display_show_sing]
+    list_display = ['username', 'code', 'department', 'phone', display_is_sing]
     list_template = 'contract/list.html'
     has_del_btn = False
     has_search = True
