@@ -44,7 +44,7 @@ class ContractUserHandler(StartHandler):
         if obj:
             url = self.revers_url(self.get_print_url_name, pk=obj.pk)
             return mark_safe(
-                "<a href='%s'><i class='fa fa-print fa-lg'></i></a>" % (url))
+                "<a href='%s' target='_blank'><i class='fa fa-print fa-lg'></i></a>" % (url))
 
     print_template = "sig_print.html"
 
