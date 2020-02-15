@@ -44,9 +44,10 @@ class ContractUserHandler(StartHandler):
         if obj:
             url = self.revers_url(self.get_delete_url_name, pk=obj.pk)
             sig = Signature.objects.filter(name_id=obj.pk)
+            print(sig)
             if sig:
                 return mark_safe(
-                    "<i class='fa fa-trash fa-lg' style='color:%s'></i>" % self.delete_a_color)
+                    "<i class='fa fa-trash fa-lg'></i>")
             return mark_safe(
                 "<a href='%s'><i class='fa fa-trash fa-lg' style='color:%s'></i></a>" % (url, self.delete_a_color))
 
@@ -93,20 +94,10 @@ class ContractUserHandler(StartHandler):
 
         return redirect(url)  # 跳转回列表页面
 
-    def display_show_sing(self, obj=None, is_header=None, *args, **kwargs):
-        if is_header:
-            return '签名'
-        sig = Signature.objects.filter(name_id=obj.pk).all()
-        if sig:
-            lab = "<img src='%s' style='width:95px; height:80px'>" % sig[0].signature
-        else:
-            lab = "<label class='label badge-danger'>None</label>"
-        return mark_safe(lab)
 
     def sings_number(self):
         person_number = ContractUser.objects.all().count()
         person_id_list = ContractUser.objects.all().values_list('id')
-
         sing_list = Signature.objects.filter(name_id__in=person_id_list).values('name_id')
         sing_number = sing_list.distinct()
         sing_number.count()
@@ -114,9 +105,10 @@ class ContractUserHandler(StartHandler):
                  "no_sing_number": person_number - sing_number.count()}]
 
     extra_data = sings_number
-    list_display = ['username', 'code', 'department', 'phone', display_is_sing, display_print]
+    list_display = ['username', 'code', 'department', 'phone', display_is_sing, display_print, display_del]
     search_field_list = ['username__contains', 'code__contains', 'department__contains', 'phone__contains']
     list_template = 'contract/list.html'
+    has_del_btn = False
 
 
 class SignatureUserHandler(StartHandler):

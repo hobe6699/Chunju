@@ -470,7 +470,6 @@ class StartHandler(object):
 
         from django.db.models import Q  # Q 用于构造复杂的查询条件
         search_context = request.POST.get('search_context', '')
-        print(search_context)
         conn = Q()  # Q查询
         conn.connector = 'OR'  # 多个字段用OR连接
         # 拼接查询条件
@@ -479,21 +478,7 @@ class StartHandler(object):
             for item in self.search_field_list:
                 print(item)
                 conn.children.append((item, search_context))
-            #conn.children.append(("username__contains", search_context))
-            #conn.children.append(("code__contains", search_context))
-            # for field in self.model_class._meta.fields:  # 遍历每一个model中的字段，获取字类型后，拼装搜索条件
-            #     if isinstance(field, ForeignKey):
-            #         conn.children.append(("%s__name__contains" % field.name, search_context))
-            #
-            #     if isinstance(field, IntegerField):
-            #         if field.name != 'ID':
-            #             t = get_choice_list(self.model_class, field.name)
-            #             if t:
-            #                 for item in t:
-            #                     if search_context in item[1]:
-            #                         conn.children.append(("%s" % field.name, item[0]))
-            #     if isinstance(field, CharField):
-            #         conn.children.append(("%s__contains" % field.name, search_context))
+
         # 1.3组合搜索处理
         search_group_condition = self.get_search_group_condition(request)
 
@@ -631,14 +616,17 @@ class StartHandler(object):
         return render(request, self.edit_template or 'stark/change.html', {"form": form, 'cancel': url})
 
     def delete_object(self, request, pk, *args, **kwargs):
+        obj = self.model_class.objects.filter(pk=pk)
         return self.model_class.objects.filter(pk=pk).delete()
 
     def delete_view(self, request, pk, *args, **kwargs):
+
         url = self.reverse_list_url(*args, **kwargs)
+
         if request.method == "GET":
             return render(request, self.delete_template or 'stark/delete.html/', {'pk': pk, "cancel": url})
         response = self.delete_object(request, pk, *args, **kwargs)
-        return response or redirect(url)  # 跳转回列表页面
+        return redirect(url)  # 跳转回列表页面
 
     def get_url_name(self, param):
         """
