@@ -43,8 +43,12 @@ class ContractUserHandler(StartHandler):
             return "打印"
         if obj:
             url = self.revers_url(self.get_print_url_name, pk=obj.pk)
+            sig = Signature.objects.filter(name_id=obj.pk)
+            if sig:
+                return mark_safe(
+                    "<a href='%s' target='_blank'><i class='fa fa-print fa-lg'></i></a>" % (url))
             return mark_safe(
-                "<a href='%s' target='_blank'><i class='fa fa-print fa-lg'></i></a>" % (url))
+                "<i class='fa fa-print fa-lg'></i>")
 
     print_template = "sig_print.html"
 

@@ -16,15 +16,11 @@
 <body class="white-bg">
 <div class="wrapper wrapper-content p-xl">
     <div class="ibox-content p-xl">
-        <div class="row">
-            <div class=" col-md-6 col-md-offset-3" style="width:100%">
-                <h3><strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;苏州院“新冠肺炎”疫情防控</strong></h3>
-                <h3><strong>个人承诺书</strong></h3>
+         <div class=" col-md-12" style="width:100%">
+                <h3 style="margin-left: 30%"><strong>苏州院“新冠肺炎”疫情防控</strong></h3>
+                <h3 style="margin-left: 41%"><strong>个人承诺书</strong></h3>
 
             </div>
-        </div>
-
-        <hr>
         <p>
             &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;疫情就是命令，防控就是责任。为打赢新冠病毒肺炎疫情防控阻击战，切实保障自身和他人身体健康和生命安全，为公司安全生产保驾护航，作为公司一员，我郑重承诺：
         </p>
@@ -67,12 +63,12 @@
                 <label for="check_ok">我已全部知晓并同意以上内容。</label>
             </div>
             -->
-        <div class="form-group" style="margin-top: 20px">
+        <div class="form-group" style="margin-top: 20px;margin-left: 8%">
             <label for="img_sig">承诺人:</label>
-            <div style="margin-left:50px"><img id='img_sig' src="{{ sig_img }}" style="width:95px;height: 80px"></div>
+            <div style="margin-left:60px"><img id='img_sig' src="{{ sig_img }}" style="width:95px;height: 80px"></div>
 
         </div>
-        <div>
+        <div style="margin-left: 8%">
             <label>承诺日期:{{ sig_date }}</label>
         </div>
 
@@ -89,6 +85,11 @@
 <script src="{% static 'plugins/hplus/js/content.js' %}"></script>
 
 <script type="text/javascript">
+
+    $(function () {
+        $('p').css('margin-left', '5%');
+
+    });
     window.print();
 </script>
 
