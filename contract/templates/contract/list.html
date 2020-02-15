@@ -99,7 +99,7 @@
                                     {{ add_btn|safe }}
                                 {% endif %}
                             </div>
-                            {% if has_search %}
+                            {% if search_field_list %}
                                 <div class="pull-right col-sm-4">
                                     <form method="POST">
                                         {% csrf_token %}

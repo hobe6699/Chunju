@@ -38,6 +38,18 @@ class ContractUserHandler(StartHandler):
             lab = "<label class='label badge-danger'>否</label>"
         return mark_safe(lab)
 
+    def display_del(self, obj=None, is_header=None, *args, **kwargs):
+        if is_header:
+            return "删除"
+        if obj:
+            url = self.revers_url(self.get_delete_url_name, pk=obj.pk)
+            sig = Signature.objects.filter(name_id=obj.pk)
+            if sig:
+                return mark_safe(
+                    "<i class='fa fa-trash fa-lg' style='color:%s'></i>" % self.delete_a_color)
+            return mark_safe(
+                "<a href='%s'><i class='fa fa-trash fa-lg' style='color:%s'></i></a>" % (url, self.delete_a_color))
+
     def display_print(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return "打印"
@@ -103,9 +115,8 @@ class ContractUserHandler(StartHandler):
 
     extra_data = sings_number
     list_display = ['username', 'code', 'department', 'phone', display_is_sing, display_print]
+    search_field_list = ['username__contains', 'code__contains', 'department__contains', 'phone__contains']
     list_template = 'contract/list.html'
-    has_del_btn = False
-    has_search = True
 
 
 class SignatureUserHandler(StartHandler):

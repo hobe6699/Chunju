@@ -292,13 +292,14 @@ class StartHandler(object):
     has_del_btn = True  # 是否有删除按钮
     model_form_class = None  # 用于用户自定制页面
     has_search = False  # 用于是否有搜索功能
+    search_field_list = []  # 用于定义搜索 字段列表
     search_group = []  # 用于定义快速筛选的字段
     action_dict = {}  # 存放批量操作的函数
     list_template = None  # 用于自定义的列表页面的显示模版
     add_template = None  # 用于自定义的添加页面的显示模版
     edit_template = None  # 用于自定义的编码页面的显示模版
     delete_template = None  # 用于自定义的删除页面的显示模版
-    print_template = None   # 用于自定义打印模版
+    print_template = None  # 用于自定义打印模版
     edit_a_color = '#18A689'  # 用于自定义的编辑按钮的颜色
     delete_a_color = '#CC6666'  # 用于自定义的删除按钮的颜色
     sort_list = ['-id']  # 用于自定义的排序的字段  默认最新的ID在最前面
@@ -469,24 +470,30 @@ class StartHandler(object):
 
         from django.db.models import Q  # Q 用于构造复杂的查询条件
         search_context = request.POST.get('search_context', '')
+        print(search_context)
         conn = Q()  # Q查询
         conn.connector = 'OR'  # 多个字段用OR连接
         # 拼接查询条件
-        if self.has_search:  # 是否有搜索功能
-            if search_context:  # 是否有搜索请求
-                for field in self.model_class._meta.fields:  # 遍历每一个model中的字段，获取字类型后，拼装搜索条件
-                    if isinstance(field, ForeignKey):
-                        conn.children.append(("%s__name__contains" % field.name, search_context))
 
-                    if isinstance(field, IntegerField):
-                        if field.name != 'ID':
-                            t = get_choice_list(self.model_class, field.name)
-                            if t:
-                                for item in t:
-                                    if search_context in item[1]:
-                                        conn.children.append(("%s" % field.name, item[0]))
-                    if isinstance(field, CharField):
-                        conn.children.append(("%s__contains" % field.name, search_context))
+        if search_context:  # 是否有搜索请求
+            for item in self.search_field_list:
+                print(item)
+                conn.children.append((item, search_context))
+            #conn.children.append(("username__contains", search_context))
+            #conn.children.append(("code__contains", search_context))
+            # for field in self.model_class._meta.fields:  # 遍历每一个model中的字段，获取字类型后，拼装搜索条件
+            #     if isinstance(field, ForeignKey):
+            #         conn.children.append(("%s__name__contains" % field.name, search_context))
+            #
+            #     if isinstance(field, IntegerField):
+            #         if field.name != 'ID':
+            #             t = get_choice_list(self.model_class, field.name)
+            #             if t:
+            #                 for item in t:
+            #                     if search_context in item[1]:
+            #                         conn.children.append(("%s" % field.name, item[0]))
+            #     if isinstance(field, CharField):
+            #         conn.children.append(("%s__contains" % field.name, search_context))
         # 1.3组合搜索处理
         search_group_condition = self.get_search_group_condition(request)
 
@@ -567,7 +574,7 @@ class StartHandler(object):
                           "start": pager.start + 1,  # 显示当前页面开始的条数
                           "end": pager.end if pager.end < pager.all_count else pager.all_count,  # 显示目前页面是第几条
                           'add_btn': self.get_add_btn(request, *args, **kwargs),  # 添加按钮
-                          'has_search': self.has_search,  # 定义是否有搜索功能
+                          'search_field_list': self.search_field_list,  # 定义是否有搜索功能 列表为空，不显示搜索框
                           'search_context': search_context,  # 搜索框内容
                           'action_dict': action_dict,  # 执行事件列表
                           'search_group': search_group,  # 快速筛选
