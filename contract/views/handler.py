@@ -20,9 +20,10 @@ __mtime__ = '2020-02-13'
                   ┗┻┛  ┗┻┛
 """
 from stark.service.v1 import StartHandler, SearchOption, StarkModelForm, StarkForm
+from stark.utils.get_custom_choice import get_datetime_text
 from contract.models.signature import Signature, ContractUser
 from django.utils.safestring import mark_safe
-from django.urls import re_path
+from django.urls import re_path, reverse
 from django.shortcuts import render, redirect
 
 
@@ -38,18 +39,13 @@ class ContractUserHandler(StartHandler):
             lab = "<label class='label badge-danger'>否</label>"
         return mark_safe(lab)
 
-    def display_del(self, obj=None, is_header=None, *args, **kwargs):
-        if is_header:
-            return "删除"
-        if obj:
-            url = self.revers_url(self.get_delete_url_name, pk=obj.pk)
-            sig = Signature.objects.filter(name_id=obj.pk)
-            print(sig)
-            if sig:
-                return mark_safe(
-                    "<i class='fa fa-trash fa-lg'></i>")
-            return mark_safe(
-                "<a href='%s'><i class='fa fa-trash fa-lg' style='color:%s'></i></a>" % (url, self.delete_a_color))
+    def del_filter(self, obj=None, *args, **kwargs):
+        if not obj:
+            return False
+        sig = Signature.objects.filter(name_id=obj.pk)
+        if sig:
+            return True
+        return False
 
     def display_print(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
@@ -94,22 +90,40 @@ class ContractUserHandler(StartHandler):
 
         return redirect(url)  # 跳转回列表页面
 
-
     def sings_number(self):
         person_number = ContractUser.objects.all().count()
         person_id_list = ContractUser.objects.all().values_list('id')
         sing_list = Signature.objects.filter(name_id__in=person_id_list).values('name_id')
         sing_number = sing_list.distinct()
         sing_number.count()
+
+        name = "%s:%s" % (self.site.namespace, self.get_list_url_name)
+        base_url = reverse(name)
+        sig_url = '%s?%s=%s' % (base_url, "custom_single_filter", 'sig')
+        no_sig_url = '%s?%s=%s' % (base_url, "custom_single_filter", 'no_sig_url')
+
         return [{"person_number": person_number, "sing_number": sing_number.count(),
-                 "no_sing_number": person_number - sing_number.count()}]
+                 "no_sing_number": person_number - sing_number.count(), "all_url": base_url, "sig_url": sig_url,
+                 "no_sig_url": no_sig_url}]
+
+    def custom_single_search(self, request):
+        custom_single_filter = request.GET.get('custom_single_filter')
+        person_id_list = ContractUser.objects.all().values_list('id')
+        sing_list = Signature.objects.filter(name_id__in=person_id_list).values('name_id')
+        if custom_single_filter == "sig":
+            return {'id__in': sing_list}
+        if custom_single_filter == "no_sig_url":
+            person_id_list = ContractUser.objects.exclude(**{"id__in": sing_list})
+            return {'id__in': person_id_list}
+        return {}
 
     extra_data = sings_number
-    list_display = ['username', 'code', 'department', 'phone', display_is_sing, display_print, display_del]
+    list_display = ['username', 'code', 'department', 'phone', display_is_sing, display_print]
     search_field_list = ['username__contains', 'code__contains', 'department__contains', 'phone__contains']
     list_template = 'contract/list.html'
-    has_del_btn = False
 
 
 class SignatureUserHandler(StartHandler):
-    list_display = ['name']
+    search_field_list = ['name_id__username__contains']
+    list_display = ['name', get_datetime_text('签名日期', 'create_date')]
+    has_edit_btn = False

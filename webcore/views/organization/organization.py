@@ -226,8 +226,7 @@ class OrgEmpHandler(StartHandler):
             return OrgEmpAddModelForm
         return OrgEmpEditModelForm  # 否则返回修改页面
 
-    has_search = True
-    # search_list = ['org_info_name__contains', 'org_dept_name__contains', 'name__contains', 'org_dept_name__contains', ]
+    search_list = ['org_info_name__contains', 'org_dept_name__contains', 'name__contains', 'org_dept_name__contains', ]
     action_dict = {'action_multi_delete': '批量删除'}
 
     # def get_list_display(self):

@@ -291,7 +291,6 @@ class StartHandler(object):
     has_edit_btn = True  # 是否有编辑按钮
     has_del_btn = True  # 是否有删除按钮
     model_form_class = None  # 用于用户自定制页面
-    has_search = False  # 用于是否有搜索功能
     search_field_list = []  # 用于定义搜索 字段列表
     search_group = []  # 用于定义快速筛选的字段
     action_dict = {}  # 存放批量操作的函数
@@ -330,6 +329,7 @@ class StartHandler(object):
         :param request:  请求
         :return:
         """
+        print(request.GET)
         condition = {}
         for option in self.get_search_group():  # 获取所有配置了搜索的字段
             if option.is_multi:  # 是否多选
@@ -343,8 +343,11 @@ class StartHandler(object):
                 if not value:  # 不在跳过继续下一次循环
                     continue
                 condition[option.field] = value  # 在拼接成查询条件 直接用字段 = 值
-
         return condition
+
+    def custom_single_search(self,request):
+        return {}
+
 
     def get_action_dict(self):
         return self.action_dict
@@ -394,17 +397,30 @@ class StartHandler(object):
         if is_header:
             return "编辑"
         if obj:
-            # name = "%s:%s" % (self.site.namespace, self.get_change_url_name)
-            # url = reverse(name, args=(obj.pk,))
             url = self.revers_url(self.get_change_url_name, pk=obj.pk)
+
             return mark_safe(
                 "<a href='%s'><i class='fa fa-edit fa-lg' style='color: %s'></i></a>" % (url, self.edit_a_color))
+
+    def del_filter(self, obj=None, *args, **kwargs, ):
+        """
+        用于定义删除功能的 限制条件
+        :param obj:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        return False
 
     def display_del(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return "删除"
         if obj:
+            has_del_filter = self.del_filter(obj, *args, **kwargs, )
             url = self.revers_url(self.get_delete_url_name, pk=obj.pk)
+            if has_del_filter:  # 判断是否有删除条件
+                return mark_safe(
+                    "<i class='fa fa-trash fa-lg'></i>")
             return mark_safe(
                 "<a href='%s'><i class='fa fa-trash fa-lg' style='color:%s'></i></a>" % (url, self.delete_a_color))
 
@@ -421,6 +437,7 @@ class StartHandler(object):
             return mark_safe("<input type='checkbox' name='pk' value=%s>" % obj.pk)
 
     def list_view(self, request, *args, **kwargs):
+        print(request.GET)
 
         action_dict = self.get_action_dict()  # 获取批量操作的功能列表
         # 批量操作处理
@@ -476,18 +493,19 @@ class StartHandler(object):
 
         if search_context:  # 是否有搜索请求
             for item in self.search_field_list:
-                print(item)
                 conn.children.append((item, search_context))
 
         # 1.3组合搜索处理
         search_group_condition = self.get_search_group_condition(request)
+
+        custom_single_filter = self.custom_single_search(request)
 
         # from webcore.models.organization import OrgEmp
         # q = OrgEmp.objects.filter()
 
         # 2、分页处理
 
-        queryset = self.model_class.objects.filter(conn).filter(**search_group_condition).order_by(*sort_field)  # 获取数据
+        queryset = self.model_class.objects.filter(conn).filter(**search_group_condition).filter(**custom_single_filter).order_by(*sort_field)  # 获取数据
 
         all_count = queryset.count()  # 获取总数
         query_params = request.GET.copy()
