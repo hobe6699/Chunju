@@ -88,7 +88,7 @@ class ContractUserHandler(StartHandler):
                 for item in obj:
                     sig_img = item['signature__signature']
                     sig_date = item['signature__create_date']
-                sig_date = str(sig_date)[0:19]
+                sig_date = str(sig_date)[0:11]
                 return render(request, self.print_template or 'stark/print.html/',
                               {'sig_img': sig_img, "cancel": url, "sig_date": sig_date})
 
