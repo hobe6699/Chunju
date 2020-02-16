@@ -118,7 +118,7 @@ class ContractUserHandler(StartHandler):
         return {}
 
     extra_data = sings_number
-    list_display = ['username', 'code', 'department', 'phone', display_is_sing, display_print]
+    list_display = ['username', 'code', 'department', 'phone', display_is_sing]
     search_field_list = ['username__contains', 'code__contains', 'department__contains', 'phone__contains']
     list_template = 'contract/list.html'
 
