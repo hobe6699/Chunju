@@ -253,6 +253,7 @@
                         'csrfmiddlewaretoken': csrfmiddlewaretoken,
                         "pk_list": pk_list
                     }, function (data) {
+
                         let tmp = new Array();
                         src_list = JSON.parse(data);
                         for (let i = 0; i < src_list.length; i++) {
@@ -309,7 +310,7 @@
                                             "top": 700,
                                             "height": 80,
                                             "width": 95,
-                                            src: src_list[i]
+                                            src: src_list[i]['signature']
                                         },
                                         "printElementType": {"type": "image"}
                                     },
@@ -330,7 +331,7 @@
                                             "top": 770,
                                             "height": 19.5,
                                             "width": 200,
-                                            title: '<h4>2020-02-18</h4>',
+                                            title:'<h4>'+src_list[i]['create_date']+'</h4>',
                                         },
                                         "printElementType": {"type": "text"}
                                     },

@@ -9,6 +9,7 @@
 from django.shortcuts import render, redirect, HttpResponse
 from contract.models.signature import *
 import datetime, json
+from django.core.serializers import serialize
 
 
 def signature(request):
@@ -39,8 +40,12 @@ def signature(request):
 def get_signature(request):
     pk_list = request.POST.get('pk_list')
     pl = json.loads(pk_list)
+
+    data = Signature.objects.filter(id__in=pl).values("signature", 'create_date')
     sig_list = []
-    data = Signature.objects.filter(id__in=pl).values("signature")
     for item in data:
-        sig_list.append(item['signature'])
+        rs = {}
+        rs['signature'] = item['signature']
+        rs['create_date'] = str(item['create_date'].strftime('%Y-%m-%d %H:%m:%S'))
+        sig_list.append(rs)
     return HttpResponse(json.dumps(sig_list))
