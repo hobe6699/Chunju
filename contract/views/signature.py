@@ -8,8 +8,7 @@
 # @Email:5898387@qq.com
 from django.shortcuts import render, redirect, HttpResponse
 from contract.models.signature import *
-import datetime
-
+import datetime, json
 
 
 def signature(request):
@@ -26,8 +25,8 @@ def signature(request):
     #     return redirect('/success/')
     if request.method == 'GET':
         return render(request, 'contract_context.html', {'emp': emp, 'date': date, 'title': title})
-    sig = request.POST.get('sig') # 获取签名
-    sig_length = request.POST.get('sig_length') # 获取签名长度
+    sig = request.POST.get('sig')  # 获取签名
+    sig_length = request.POST.get('sig_length')  # 获取签名长度
     if int(sig_length) <= 0:
         return render(request, 'contract_context.html', {'emp': emp, 'date': date, 'title': title, 'msg': '请签名!'})
     obj = Signature.objects.create(name_id=pk, signature=sig)
@@ -37,4 +36,11 @@ def signature(request):
     return render(request, 'contract_context.html', {'emp': emp, 'date': date, 'title': title})
 
 
-
+def get_signature(request):
+    pk_list = request.POST.get('pk_list')
+    pl = json.loads(pk_list)
+    sig_list = []
+    data = Signature.objects.filter(id__in=pl).values("signature")
+    for item in data:
+        sig_list.append(item['signature'])
+    return HttpResponse(json.dumps(sig_list))

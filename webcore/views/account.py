@@ -56,11 +56,12 @@ def logout(request):
     return redirect('/login/')
 
 
+def testprint(request):
+    return render(request, 'testprint.html')
+
+
 def error(request):
     return render(request, 'error.html',
                   {"error_code": 500, "error_title": "内部服务器错误", "error_content": "内部服务器错误，请尝试重新登陆!",
                    "a_name": "登陆",
                    "a_href": "/login/"})
-
-
-

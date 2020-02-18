@@ -12,7 +12,8 @@ from contract.views import auth, signature
 
 app_name = 'contract'
 urlpatterns = [
-    re_path(r"^auth/$", auth.auth,name='contract_auth'),
-    re_path(r"^code/$", auth.code,name='contract_code'),
-    re_path(r"^contract_context/$", signature.signature,name='contract_signature'),
+    re_path(r"^auth/$", auth.auth, name='contract_auth'),
+    re_path(r"^code/$", auth.code, name='contract_code'),
+    re_path(r"^contract_context/$", signature.signature, name='contract_signature'),
+    re_path(r"^get_signature/$", signature.get_signature, name='contract_get_signature'),
 ]

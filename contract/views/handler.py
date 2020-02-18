@@ -118,12 +118,34 @@ class ContractUserHandler(StartHandler):
         return {}
 
     extra_data = sings_number
-    list_display = ['username', 'code', 'department', 'phone', display_is_sing]
+    list_display = [StartHandler.display_checkbox, 'username', 'code', 'department', 'phone', display_is_sing]
     search_field_list = ['username__contains', 'code__contains', 'department__contains', 'phone__contains']
     list_template = 'contract/list.html'
+    action_dict = {'action_multi_delete': '批量删除'}
 
 
 class SignatureUserHandler(StartHandler):
-    search_field_list = ['name_id__username__contains']
-    list_display = ['name', get_datetime_text('签名日期', 'create_date')]
+    def display_department(self, obj=None, is_header=None, *args, **kwargs):
+        if is_header:
+            return '部门'
+        sig = Signature.objects.get(id=obj.pk)
+        return mark_safe(sig.name.department)
+
+    def display_code(self, obj=None, is_header=None, *args, **kwargs):
+        if is_header:
+            return '工号'
+        sig = Signature.objects.get(id=obj.pk)
+        return mark_safe(sig.name.code)
+
+    def display_phone(self, obj=None, is_header=None, *args, **kwargs):
+        if is_header:
+            return '手机号'
+        sig = Signature.objects.get(id=obj.pk)
+        return mark_safe(sig.name.phone)
+
+    search_field_list = ['name_id__username__contains', 'name_id__code__contains', 'name_id__department__contains',
+                         'name_id__phone__contains']
+    list_display = [StartHandler.display_checkbox, 'id', 'name', display_department, display_code, display_phone,
+                    get_datetime_text('签名日期', 'create_date')]
     has_edit_btn = False
+    list_template = 'contract/list_signature.html'

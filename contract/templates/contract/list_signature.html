@@ -1,0 +1,424 @@
+{% extends 'layout_content.html' %}
+{% load static %}
+{% block css_content %}
+    <!-- hiprint -->
+    <link href="{% static 'plugins/hiprint/css/hiprint.css' %}" rel="stylesheet">
+    <link href="{% static 'plugins/hiprint/css/print-lock.css' %}" rel="stylesheet">
+    <link href="{% static 'plugins/hiprint/css/print-lock.css' %}" media="print" rel="stylesheet">
+{% endblock %}
+{% block content %}
+    <div class="row wrapper wrapper-content">
+        <div class="col-sm-12">
+            <!--
+            <div class="ibox">
+                <table class="table">
+                    <tbody>
+                    <tr>
+                        <td>
+
+                            <a class="btn btn-info m-r-sm" href="{{ extra_data.0.all_url }}"> 总人数:{{ extra_data.0.person_number }}</a>
+
+                        </td>
+                        <td>
+
+                            <a class="btn btn-success m-r-sm" value="12354" href="{{ extra_data.0.sig_url }}"> 已签人数:{{ extra_data.0.sing_number }}</a>
+
+                        </td>
+                        <td>
+
+                            <a class="btn btn-danger m-r-sm" href="{{ extra_data.0.no_sig_url }}"> 未签人数:{{ extra_data.0.no_sing_number }}</a>
+
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            -->
+            <div class="ibox">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="ibox-content">
+                        {% if search_group %}
+                            <div class="row">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title" style="color:#4CA48B">
+                                            快速筛选
+                                            <a data-toggle="collapse" href="#collapseThree" class="collapsed pull-right"
+                                               data-parent="#accordion">
+                                                <i class="fa fa-expand"></i>
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapseThree" class="panel-collapse collapse in" aria-expanded="false">
+                                        <div class="panel-body">
+                                            <table>
+
+
+                                                {% for row in search_row_list %}
+                                                    <!--
+                                                    <div class="row"
+                                                         style="margin-top: 1px;margin-bottom: 4px;margin-right: 8px">
+                                                    <div class="col-sm-12">
+                                                    -->
+                                                    {% for a in row %}
+                                                        {{ a|safe }}
+                                                    {% endfor %}
+
+                                                {% endfor %}
+                                                <!--
+                                                        </div>
+
+
+                                                    -->
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        {% endif %}
+
+                        <div class="row">
+
+                            {% if action_dict %}
+                                <div class="col-sm-4">
+                                    {% csrf_token %}
+                                    <div class="input-group">
+                                        <select class="form-control input-sm " name="action">
+                                            <option value="">请选择操作</option>
+                                            {% for k,v in action_dict.items %}
+                                                <option value="{{ k }}">{{ v }}</option>
+
+                                            {% endfor %}
+                                        </select>
+                                        <span class="input-group-btn">
+                                   <button class="btn btn-primary btn-sm"><i class="fa fa-cogs"
+                                                                             id="btn_action"></i> &nbsp;执行</button>
+                                </span>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <div class="col-sm-1">
+                                {% if add_btn %}
+                                    {{ add_btn|safe }}
+                                {% endif %}
+
+                            </div>
+                            <div class="col-sm-1">
+                                <button class="btn btn-danger btn-group-sm" id="btn_print">批量打印</button>
+                            </div>
+                            {% if search_field_list %}
+                                <div class="pull-right col-sm-4">
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <div class="input-group">
+                                            <input type="text" class="form-control input-sm"
+                                                   name="search_context"
+                                                   autocomplete="off"
+                                                   {% if search_context %}value="{{ search_context }}" {% endif %}>
+                                            <span class="input-group-btn">
+                                        <button class="btn btn-primary btn-sm"><i class="fa fa-search"></i></button>
+                                        </span>
+                                        </div>
+                                    </form>
+                                </div>
+                            {% endif %}
+
+
+                        </div>
+                        <br/>
+                        <div class="row">
+                            <table class="table table-hover table-bordered" id="table_list">
+                                <thead>
+                                <tr>
+                                    {% for item in header_list %}
+                                        <th class="text-center">{{ item|safe }}</th>
+                                    {% endfor %}
+                                </tr>
+                                </thead>
+
+                                {% for row in body_list %}
+                                    <tr>
+                                        {% for td  in row %}
+                                            <td class="text-center">{{ td }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+
+                        <div class="row">
+                            <div class="fixed-table-pagination" style="margin-top:-10px">
+                                <div class="pull-left pagination-detail">
+                                    <span class="pagination-info">显示第 {{ start }} 到第 {{ end }} 条记录，总共 {{ pager.all_count }} 条记录</span>
+                                    <span class="page-list">每页显示
+                                    <span class="btn-group dropup">
+                                        <button type="button" class="btn btn-default btn-xs btn-outline dropdown-toggle"
+                                                data-toggle="dropdown">
+                                        <span class="page-size">{{ pager.per_page }}</span>
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu">
+                                         {{ pager.page_size|safe }}
+                                     </ul>
+                                </span> 条记录</span>
+                                </div>
+                                <div class="pull-right pagination-detail">
+                                    <ul class="pagination pagination-outline" style="margin-top:-4px">
+                                        {{ pager.page_html|safe }}
+                                    </ul>
+                                </div>
+                            </div>
+
+
+                            <div class="clearfix"></div>
+                        </div>
+
+
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}
+{% block js_content %}
+    <!-- polyfill.min.js解决浏览器兼容性问题v6.26.0-->
+    <script src="{% static 'plugins/hiprint/polyfill.min.js' %}"></script>
+    <!-- hiprint 核心js-->
+    <script src="{% static 'plugins/hiprint/hiprint.bundle.js' %}"></script>
+    <!-- 条形码生成组件-->
+    <script src="{% static 'plugins/hiprint/plugins/JsBarcode.all.min.js' %}"></script>
+    <!-- 二维码生成组件-->
+    <script src="{% static 'plugins/hiprint/plugins/qrcode.js' %}"></script>
+    <!-- 调用浏览器打印窗口helper类，可自行替换-->
+    <script src="{% static 'plugins/hiprint/plugins/jquery.hiwprint.js' %}"></script>
+    <script>
+        hiprint.init();
+        $(function () {
+            let text = '<div> </p><h3>&nbsp;&nbsp;疫情就是命令，防控就是责任。' +
+                '为打赢新冠病毒肺炎疫情防控阻击战，切实保障自身和他人身体健康和生命安全，' +
+                '为公司安全生产保驾护航，作为公司一员，我郑重承诺：</h3></p>' +
+                '</p>1、认真学习防疫法规、公司应急防控规定和防疫知识;</p>' +
+                '<p>2、积极参与和支持疫情防控工作，服从指挥、听从安排;</p>' +
+                '<p>3、如实申报个人防疫信息，绝不瞒报、谎报、漏报、错报；</p>' +
+                '<p>4、主动配合每日体温检测，及时报告身体异常情况，按规定接受隔离；</p>' +
+                '<p>5、严格做好个人防护，规范佩戴口罩，勤洗手，保持良好个人卫生；</p>' +
+                '<p>6、上班坚守岗位，不聚集，谈话做事保持安全距离；下班减少外出，不组织或参加聚会聚餐；</p>' +
+                '<p>7、遵守公司食堂用餐规定，错峰就餐，不扎堆、不面对面就餐；</p>' +
+                '<p>8、坚决避免直接接触任何野生动物，绝不食用野味；</p>' +
+                '<p>9、科学理性关注疫情，不恐慌，不造谣，不传谣，不信谣;</p>' +
+                '<p>10、疫情防控，人人都是一道屏障！\n' +
+                '<p><strong>如有违反，我愿意承担相应的责任。</strong></p>' +
+                '<p>附:中广核新型冠状病毒肺炎疫情防控十四条</p>' +
+                '<p>1、进入公共场所一律佩戴口罩；</p>' +
+                '<p>2、进入基地/办公场所、乘坐班车人员一律安排测温，体温超过37.3℃拒绝入内；</p>' +
+                '<p>3、明确基地核心和重要区域，严格控制人员出入，做好测温和登记；</p>' +
+                '<p>4、对核电站重点人群(如运行值班人员)进行重点防护，指定专人负责和跟踪，发现异常及时隔离；</p>' +
+                '<p>5、保持办公室、会议室、餐厅、电梯间、洗手间、班车等公共场所的通风，每天定期消毒；</p>' +
+                '<p>6、要求有疑似症状的人员及时报告并就医；</p>' +
+                '<p>7、湖北返回的员工、家中有湖北返回人员的员工、近期曾密切接触确诊或疑似病例的员工，自返回或脱离接触之日起自行居家隔离21天;</p>' +
+                '<p>8、原则上不接待外部人员非必要的来访；</p>' +
+                '<p>9、不安排到湖北出差，最大程度减少出差安排；</p>' +
+                '<p>10、取消一切非必要的集体活动，精简、取消或延后会议，提倡通过电话或视频召开会议；</p>' +
+                '<p>11、降低餐厅就餐人员密度，实行错峰就餐，避免面对面就餐，鼓励打包就餐；</p>' +
+                '<p>12、节后上班不开展互相走访、拜年发利是等活动；</p>' +
+                '<p>13、长途班车乘车人员信息可追溯，核电基地上下班车、巡回班车尽量保持通风，降低乘车密度；</p>' +
+                '<p>14、各核电基地2月3日前备好人员隔离场所和相应物资。</p>' +
+                '</div>';
+
+            $('#btn_print').click(function () {
+                let pk_list = [];
+                $("#table_list").each(function (k, v) {
+                    let ch = $(v).find("input[type='checkbox']");
+                    ch.each(function (n, m) {
+                        if ($(m).attr('checked') === 'checked') {
+                            if (n > 0) {
+
+                                pk_list[n - 1] = $(m).val()
+                            }
+
+                        }
+                    });
+
+                });
+
+                if (pk_list.length > 0) {
+                    pk_list = JSON.stringify(pk_list);
+                    let csrfmiddlewaretoken = $("input[name='csrfmiddlewaretoken']").val();
+                    $.post('/contract/get_signature/', {
+                        'csrfmiddlewaretoken': csrfmiddlewaretoken,
+                        "pk_list": pk_list
+                    }, function (data) {
+                        let tmp = new Array();
+                        src_list = JSON.parse(data);
+                        for (let i = 0; i < src_list.length; i++) {
+                            var hiprintTemplate = new hiprint.PrintTemplate();
+                            hiprintTemplate.addPrintPanel({
+                                "index": 0,
+                                "paperType": "A4",
+                                "height": 297,
+                                "width": 210,
+                                "paperHeader": 43.5,
+                                "paperFooter": 801,
+                                "printElements": [
+                                    {
+                                        "options": {
+                                            "left": 40,
+                                            "top": 45,
+                                            "height": 19.5,
+                                            "width": 500,
+                                            'title': '<h2>苏州院“新冠肺炎”疫情防控</h2>',
+                                            "textAlign": "center"
+                                        },
+                                        "printElementType": {"type": "text",}
+                                    },
+                                    {
+                                        "options": {
+                                            "left": 40,
+                                            "top": 66,
+                                            "height": 19.5,
+                                            "width": 500,
+                                            title: '<h2>个人承诺书</h2>',
+                                            "textAlign": "center"
+                                        },
+                                        "printElementType": {"type": "text",}
+                                    },
+
+                                    {
+                                        "options": {"left": 40, "top": 93, "height": 577.5, "width": 500, title: text},
+                                        "printElementType": {"type": "longText"}
+                                    },
+                                    {
+                                        "options": {
+                                            "left": 40,
+                                            "top": 700,
+                                            "height": 19.5,
+                                            "width": 80,
+                                            title: '<h4>承诺人：</h4>',
+
+                                        },
+                                        "printElementType": {"type": "text",}
+                                    },
+                                    {
+                                        "options": {
+                                            "left": 70,
+                                            "top": 700,
+                                            "height": 80,
+                                            "width": 95,
+                                            src: src_list[i]
+                                        },
+                                        "printElementType": {"type": "image"}
+                                    },
+                                    {
+                                        "options": {
+                                            "left": 40,
+                                            "top": 770,
+                                            "height": 19.5,
+                                            "width": 80,
+                                            title: '<h4>承诺日期：</h4>',
+
+                                        },
+                                        "printElementType": {"type": "text",}
+                                    },
+                                    {
+                                        "options": {
+                                            "left": 90,
+                                            "top": 770,
+                                            "height": 19.5,
+                                            "width": 200,
+                                            title: '<h4>2020-02-18</h4>',
+                                        },
+                                        "printElementType": {"type": "text"}
+                                    },
+
+                                ],
+                                "paperNumberLeft": 565,
+                                "paperNumberTop": 819
+                            });
+
+
+                            tmp[i] = {template: hiprintTemplate};
+
+                        }
+
+
+                        hiprint.print({templates: tmp}, function (data) {
+                            console.log('success')
+                        });
+
+                    });
+                }
+
+
+                return false
+
+            });
+            $("input[type='checkbox']").on('click', function () {
+                if ($(this).attr('checked') === 'checked') {
+                    $(this).removeAttr('checked');
+                } else {
+                    $(this).attr('checked', 'checked');
+                }
+
+
+            });
+            /***
+             $("input[type='checkbox']").on('click', function () {
+                let that = $(this);
+
+                let checked_state = that.attr('checked');
+                let tbr = $("#table_list").children('tbody').children('tr');
+
+                console.log(checked_state);
+
+                if (that.attr('id') === 'checkbox_all') {
+                    console.log(that.attr('id'));
+                    if (checked_state === undefined) {
+                        //$("table input[type='checkbox']").attr('checked', 'checked');
+                        //table.each(function (k, v) {
+                        //   let input_checkbox =  $(v).find("input[type='checkbox']");
+                        //    input_checkbox.attr('checked', 'checked');
+                        //  input_checkbox.toggleClass('active')
+                        //  });
+
+                        //  that.attr('checked', 'checked');
+                        tbr.each(function (k, v) {
+                            $(v).find("input[type='checkbox']").prop('checked', 'checked');
+                        })
+
+
+                    } else {
+                        tbr.each(function (k, v) {
+                            $(v).find("input[type='checkbox']").removeAttr('checked');
+                        });
+
+                        that.removeAttr('checked');
+
+                    }
+
+                } else {
+
+                    if (checked_state === undefined) {
+                        that.attr('checked', 'checked');
+                    } else {
+                        that.removeAttr('checked');
+
+                    }
+
+                }
+
+
+            });
+
+             **/
+
+
+        });
+
+
+    </script>
+{% endblock %}

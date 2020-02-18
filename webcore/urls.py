@@ -12,7 +12,7 @@ from webcore.views import *
 app_name = 'webcore'
 urlpatterns = [
     re_path(r"^login/$", account.login, name="webcore_login"),
-
+    re_path(r"^testprint/$", account.testprint, name="webcore_testprint"),
     re_path(r"^logout/$", account.logout, name="webcore_logout"),
     re_path(r"^error/$", account.error, name="webcore_error"),
     re_path(r"^init_system_config/$", system_config.init_system_config, name="webcore_init_system_config"),
